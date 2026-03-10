@@ -18,6 +18,7 @@ const SECTION_LABELS: Record<SectionId, string> = {
   education: "Ausbildung",
   interests: "Kenntnisse und Interessen",
 };
+//s
 
 interface LebenslaufPreviewProps {
   data: LebenslaufData;
