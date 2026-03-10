@@ -249,30 +249,30 @@ export default function AnschreibenPage() {
       </div>
 
       <Dialog open={isQuickEditOpen} onOpenChange={setIsQuickEditOpen}>
-        <DialogContent className="sm:max-w-xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-          <div className="bg-gradient-to-br from-primary/10 via-background to-background p-6">
-            <DialogHeader className="pb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
+        <DialogContent className="w-[95vw] max-w-xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl sm:w-full">
+          <div className="bg-gradient-to-br from-primary/10 via-background to-background p-4 sm:p-6">
+            <DialogHeader className="pb-4 sm:pb-6 text-left">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
+                <div className="h-10 w-10 shrink-0 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
                   <Zap size={22} className="fill-white/20" />
                 </div>
                 <div>
-                  <DialogTitle className="text-xl font-black tracking-tight underline decoration-primary/30 underline-offset-4">Smart Quick-Edit</DialogTitle>
-                  <DialogDescription className="text-xs font-medium text-muted-foreground/80 mt-1 uppercase tracking-tight">
+                  <DialogTitle className="text-lg sm:text-xl font-black tracking-tight underline decoration-primary/30 underline-offset-4 line-clamp-1">Smart Quick-Edit</DialogTitle>
+                  <DialogDescription className="text-[10px] sm:text-xs font-medium text-muted-foreground/80 mt-1 uppercase tracking-tight">
                     Neue Bewerbung in sekunden anlegen
                   </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
-            <div className="grid gap-8 py-2">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:gap-8 py-2 max-h-[60vh] overflow-y-auto px-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2 group">
                    <Label className="text-[10px] items-center font-black text-muted-foreground group-focus-within:text-primary transition-all uppercase tracking-widest">Target Company</Label>
                   <Input
                     value={data.recipientCompany}
                     onChange={(e) => update("recipientCompany", e.target.value)}
                     placeholder="z.B. Muster GmbH"
-                    className="bg-white border-primary/5 focus:border-primary/40 focus:ring-primary/10 h-11"
+                    className="bg-white border-primary/5 focus:border-primary/40 focus:ring-primary/10 h-10 sm:h-11 text-sm"
                   />
                 </div>
                 <div className="grid gap-2 group">
@@ -293,7 +293,7 @@ export default function AnschreibenPage() {
                       }
                     }}
                     placeholder="z.B. Herr Müller"
-                    className="bg-white border-primary/5 focus:border-primary/40 focus:ring-primary/10 h-11"
+                    className="bg-white border-primary/5 focus:border-primary/40 focus:ring-primary/10 h-10 sm:h-11 text-sm"
                   />
                 </div>
               </div>
@@ -303,16 +303,16 @@ export default function AnschreibenPage() {
                   value={data.subject}
                   onChange={(e) => update("subject", e.target.value)}
                   placeholder="Bewerbung als..."
-                  className="bg-white border-primary/5 focus:border-primary/40 focus:ring-primary/10 h-11 font-bold italic"
+                  className="bg-white border-primary/5 focus:border-primary/40 focus:ring-primary/10 h-10 sm:h-11 font-bold italic text-sm"
                 />
               </div>
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 text-xs text-primary/80 font-medium leading-relaxed">
+              <div className="p-3 sm:p-4 rounded-xl bg-primary/5 border border-primary/10 text-[11px] sm:text-xs text-primary/80 font-medium leading-relaxed">
                 💡 <strong>Tipp:</strong> Die Anrede wird automatisch angepasst, wenn du "Herr Müller" oder "Frau Schmidt" eingibst.
               </div>
             </div>
-            <DialogFooter className="pt-8 border-t mt-4 gap-3">
-              <Button variant="ghost" onClick={() => setIsQuickEditOpen(false)} className="rounded-full px-6">Abbrechen</Button>
-              <Button onClick={() => setIsQuickEditOpen(false)} className="rounded-full px-8 shadow-lg shadow-primary/20">Einstellungen übernehmen</Button>
+            <DialogFooter className="pt-6 sm:pt-8 border-t mt-4 gap-2 sm:gap-3 flex-col sm:flex-row">
+              <Button variant="ghost" onClick={() => setIsQuickEditOpen(false)} className="rounded-full px-6 w-full sm:w-auto h-10 sm:h-auto">Abbrechen</Button>
+              <Button onClick={() => setIsQuickEditOpen(false)} className="rounded-full px-8 shadow-lg shadow-primary/20 w-full sm:w-auto h-10 sm:h-auto">Einstellungen übernehmen</Button>
             </DialogFooter>
           </div>
         </DialogContent>
