@@ -7,7 +7,6 @@ import {
   Upload,
   Package,
   Loader2,
-  X,
   Database,
   Settings,
   ShieldCheck,
@@ -144,7 +143,14 @@ export default function Dashboard() {
           defaultLebenslauf,
         );
         if (!candidateName) candidateName = lblData.personalFields[0].value;
-        blobs.push(await generateLebenslaufBlob(lblData));
+
+        // Respect deleted sections from editor
+        const DEFAULT_SECTION_ORDER = ["personal", "about", "skills", "projects", "experience", "education", "interests"];
+        const sectionOrder = JSON.parse(localStorage.getItem("lebenslauf-section-order") || "null") || DEFAULT_SECTION_ORDER;
+        const deletedSections: string[] = JSON.parse(localStorage.getItem("lebenslauf-deleted-sections") || "[]");
+        const activeSections = sectionOrder.filter((id: string) => !deletedSections.includes(id));
+
+        blobs.push(await generateLebenslaufBlob(lblData, activeSections));
       } catch {
         console.warn("Lebenslauf generation failed, skipping");
       }

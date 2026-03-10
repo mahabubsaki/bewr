@@ -130,6 +130,11 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Disable text selection globally except for editable elements and primary text content */
+  *:not(input):not(textarea):not([contenteditable="true"]):not(p):not(span):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(li) {
+    -webkit-user-select: none;
+    user-select: none;
+  }
   html {
     @apply font-sans;
   }

@@ -1,6 +1,7 @@
 import { useRef } from "react";
-import { Camera } from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { Button } from "./ui/button";
 
 interface PhotoUploadProps {
   photo: string;
@@ -31,43 +32,64 @@ export default function PhotoUpload({
       onPhotoChange(reader.result as string);
     };
     reader.readAsDataURL(file);
+    // Reset input value to allow selecting the same file again if needed
+    e.target.value = "";
+  };
+
+  const removePhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onPhotoChange("");
   };
 
   return (
-    <div
-      className={cn(
-        "group relative flex cursor-pointer items-center justify-center overflow-hidden border-2 border-dashed border-muted-foreground/30 bg-muted/50 transition-all hover:border-primary/50 hover:bg-muted font-sans",
-        rounded ? "rounded-full" : "rounded-lg",
-        className
-      )}
-      style={{ width, height }}
-      onClick={() => fileRef.current?.click()}
-      title={label}
-    >
-      {photo ? (
-        <>
-          <img
-            src={photo}
-            alt="Foto"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-            <Camera className="text-white" size={24} />
+    <div className="relative group/container flex flex-col items-center">
+      <div
+        className={cn(
+          "group relative flex cursor-pointer items-center justify-center overflow-hidden border-2 border-dashed border-muted-foreground/30 bg-muted/50 transition-all hover:border-primary/50 hover:bg-muted font-sans",
+          rounded ? "rounded-full" : "rounded-lg",
+          className
+        )}
+        style={{ width, height }}
+        onClick={() => fileRef.current?.click()}
+        title={label}
+      >
+        {photo ? (
+          <>
+            <img
+              src={photo}
+              alt="Foto"
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              <Camera className="text-white" size={24} />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <Camera size={24} />
+            <span className="text-[10px] uppercase tracking-wider font-bold">{label}</span>
           </div>
-        </>
-      ) : (
-        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-          <Camera size={24} />
-          <span className="text-[10px] uppercase tracking-wider font-bold">{label}</span>
-        </div>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </div>
+      
+      {photo && (
+        <Button
+          variant="destructive"
+          size="icon"
+          className="absolute -right-2 -top-2 h-7 w-7 rounded-full shadow-lg opacity-0 group-hover/container:opacity-100 transition-all z-10 scale-90 hover:scale-100"
+          onClick={removePhoto}
+          title="Bild entfernen"
+        >
+          <Trash2 size={14} />
+        </Button>
       )}
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
     </div>
   );
 }

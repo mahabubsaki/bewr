@@ -9,9 +9,9 @@ import "./index.css";
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="flex min-h-screen flex-col bg-background text-foreground transition-colors duration-200">
+      <div className="flex flex-col bg-background text-foreground transition-colors duration-200">
         <Navbar />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-8 py-6">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-2 sm:px-8 py-6">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/lebenslauf" element={<LebenslaufPage />} />

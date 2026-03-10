@@ -19,14 +19,14 @@ async function renderPdf(element: React.ReactElement<any>): Promise<Blob> {
     return pdf(element).toBlob();
 }
 
-export async function generateLebenslaufPdf(data: LebenslaufData, filename: string): Promise<Blob> {
-    const blob = await renderPdf(React.createElement(LebenslaufPDF, { data }));
+export async function generateLebenslaufPdf(data: LebenslaufData, filename: string, activeSections?: string[]): Promise<Blob> {
+    const blob = await renderPdf(React.createElement(LebenslaufPDF, { data, activeSections }));
     triggerDownload(blob, filename);
     return blob;
 }
 
-export async function generateLebenslaufBlob(data: LebenslaufData): Promise<Blob> {
-    return renderPdf(React.createElement(LebenslaufPDF, { data }));
+export async function generateLebenslaufBlob(data: LebenslaufData, activeSections?: string[]): Promise<Blob> {
+    return renderPdf(React.createElement(LebenslaufPDF, { data, activeSections }));
 }
 
 export async function generateAnschreibenPdf(data: AnschreibenData, filename: string): Promise<Blob> {

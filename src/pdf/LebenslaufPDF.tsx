@@ -81,6 +81,7 @@ const s = StyleSheet.create({
   },
   section: {
     marginBottom: 10,
+    break: false,
   },
   sectionTitle: {
     fontSize: 12,
@@ -143,6 +144,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     marginTop: 1,
     paddingLeft: 2,
+    marginLeft:-2
   },
   bulletDot: {
     width: 12,
@@ -205,158 +207,224 @@ const BulletList = ({ items }: { items: string[] }) => (
 
 interface Props {
   data: LebenslaufData;
+  activeSections?: string[];
 }
 
-const LebenslaufPDF = ({ data }: Props) => (
-  <Document>
-    <Page
-      size="A4"
-      style={{
-        ...s.page,
-        paddingTop: `${data.margins.top}mm`,
-        paddingBottom: `${data.margins.bottom}mm`,
-        paddingLeft: `${data.margins.left}mm`,
-        paddingRight: `${data.margins.right}mm`,
-      }}
-      wrap
-    >
-      {/* Header */}
-      <View style={s.header} fixed={false}>
-        <Text style={s.title}>Lebenslauf</Text>
-        {data.photo && <Image src={data.photo} style={s.photo} />}
-      </View>
+const LebenslaufPDF = ({ data, activeSections }: Props) => {
+  const show = (id: string) => !activeSections || activeSections.includes(id);
 
-      {/* Persönliche Daten */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.personal || "Persönliche Daten"}
-        </Text>
-        {(data.personalFields || []).map((field, i) => (
-          <View key={i} style={s.tableRow} wrap={false}>
-            <Text style={s.label}>{field.label}</Text>
-            <Text style={s.value}>
-              <UrlOrText>{field.value}</UrlOrText>
+  return (
+    <Document>
+      <Page
+        size="A4"
+        style={{
+          ...s.page,
+          paddingTop: `${data.margins.top}mm`,
+          paddingBottom: `${data.margins.bottom}mm`,
+          paddingLeft: `${data.margins.left}mm`,
+          paddingRight: `${data.margins.right}mm`,
+        }}
+        wrap
+      >
+        {/* Header */}
+        <View style={s.header} fixed={false}>
+          <Text style={s.title}>Lebenslauf</Text>
+          {data.photo ? (
+            <Image src={data.photo} style={s.photo} />
+          ) : (
+            <View style={[s.photo, { backgroundColor: "#ffffff" }]} />
+          )}
+        </View>
+
+        {/* Persönliche Daten */}
+        {show("personal") && (
+          <View style={s.section} wrap={false}>
+            <Text style={s.sectionTitle}>
+              {data.sectionTitles?.personal || "Persönliche Daten"}
             </Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Über mich */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.about || "Über mich"}
-        </Text>
-        <Text style={s.about}>{data.aboutMe}</Text>
-      </View>
-
-      {/* IT-Kenntnisse */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.skills || "IT-Kenntnisse"}
-        </Text>
-        {data.skills.map((skill, i) => (
-          <View key={i} style={s.tableRow} wrap={false}>
-            <Text style={s.label}>{skill.category}</Text>
-            <Text style={s.value}>{skill.items}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Projekte */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.projects || "Projekte"}
-        </Text>
-        {data.projects.map((p, i) => (
-          <View key={i} style={s.entry} wrap={false}>
-            <Text style={s.entryPeriod}>{p.period}</Text>
-            <View style={s.entryDetails}>
-              <Text style={s.entryTitle}>{p.title}</Text>
-              <Link src={p.url} style={s.url}>
-                {p.url}
-              </Link>
-              <BulletList items={p.bullets} />
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Berufserfahrung */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.experience || "Berufserfahrung"}
-        </Text>
-        {data.experience.map((e, i) => (
-          <View key={i} style={s.entry} wrap={false}>
-            <Text style={s.entryPeriod}>{e.period}</Text>
-            <View style={s.entryDetails}>
-              <Text>
-                <Text style={s.entryTitle}>{e.company}</Text>{" "}
-                <Link src={e.url} style={s.url}>
-                  ({e.url})
-                </Link>
-              </Text>
-              <Text>{e.role}</Text>
-              <BulletList items={e.bullets} />
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Ausbildung */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.education || "Ausbildung"}
-        </Text>
-        {data.education.map((e, i) => (
-          <View key={i} style={s.entry} wrap={false}>
-            <Text style={s.entryPeriod}>{e.period}</Text>
-            <View style={s.entryDetails}>
-              <Text style={s.entryTitle}>{e.institution}</Text>
-              <Text>{e.degree}</Text>
-              <BulletList items={e.bullets} />
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Kenntnisse und Interessen */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>
-          {data.sectionTitles?.interests || "Kenntnisse und Interessen"}
-        </Text>
-        <View style={s.tableRow}>
-          <Text style={s.label}>{data.languagesLabel || "Fremdsprachen"}</Text>
-          <View style={s.value}>
-            {data.languages.map((lang, i) => (
-              <Text key={i}>
-                {lang.name} ({lang.level})
-              </Text>
+            {(data.personalFields || []).map((field, i) => (
+              <View key={i} style={s.tableRow} wrap={false}>
+                <Text style={s.label}>{field.label}</Text>
+                <Text style={s.value}>
+                  <UrlOrText>{field.value}</UrlOrText>
+                </Text>
+              </View>
             ))}
           </View>
-        </View>
-        <View style={s.tableRow}>
-          <Text style={s.label}>Hobbys</Text>
-          <Text style={s.value}>{data.hobbys}</Text>
-        </View>
-      </View>
-
-      {/* Signature */}
-      <View style={s.signature} wrap={false}>
-        <Text style={s.sigLocation}>
-          <Text style={s.sigCity}>{data.signatureCity}</Text>
-          <Text>, den {data.signatureDate}</Text>
-        </Text>
-        {data.signature ? (
-          <Image src={data.signature} style={s.sigImage} />
-        ) : (
-          <Text style={s.sigText}>
-            {data.personalFields?.[0]?.value || "Unterschrift"}
-          </Text>
         )}
-      </View>
-    </Page>
-  </Document>
-);
+
+        {/* Über mich */}
+        {show("about") && (
+          <View style={s.section} wrap={false}>
+            <Text style={s.sectionTitle}>
+              {data.sectionTitles?.about || "Über mich"}
+            </Text>
+            <Text style={s.about}>{data.aboutMe}</Text>
+          </View>
+        )}
+
+        {/* IT-Kenntnisse */}
+        {show("skills") && (
+          <View style={s.section} wrap={false}>
+            <Text style={s.sectionTitle}>
+              {data.sectionTitles?.skills || "IT-Kenntnisse"}
+            </Text>
+            {data.skills.map((skill, i) => (
+              <View key={i} style={s.tableRow} wrap={false}>
+                <Text style={s.label}>{skill.category}</Text>
+                <Text style={s.value}>{skill.items}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Projekte */}
+        {show("projects") && (
+          <View style={s.section}>
+            <View wrap={false}>
+              <Text style={s.sectionTitle}>
+                {data.sectionTitles?.projects || "Projekte"}
+              </Text>
+              {data.projects.length > 0 && (
+                <View style={s.entry} wrap={false}>
+                  <Text style={s.entryPeriod}>{data.projects[0].period}</Text>
+                  <View style={s.entryDetails}>
+                    <Text style={s.entryTitle}>{data.projects[0].title}</Text>
+                    <Link src={data.projects[0].url} style={s.url}>
+                      {data.projects[0].url}
+                    </Link>
+                    <BulletList items={data.projects[0].bullets} />
+                  </View>
+                </View>
+              )}
+            </View>
+            {data.projects.slice(1).map((p, i) => (
+              <View key={i} style={s.entry} wrap={false}>
+                <Text style={s.entryPeriod}>{p.period}</Text>
+                <View style={s.entryDetails}>
+                  <Text style={s.entryTitle}>{p.title}</Text>
+                  <Link src={p.url} style={s.url}>
+                    {p.url}
+                  </Link>
+                  <BulletList items={p.bullets} />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Berufserfahrung */}
+        {show("experience") && (
+          <View style={s.section}>
+            <View wrap={false}>
+              <Text style={s.sectionTitle}>
+                {data.sectionTitles?.experience || "Berufserfahrung"}
+              </Text>
+              {data.experience.length > 0 && (
+                <View style={s.entry} wrap={false}>
+                  <Text style={s.entryPeriod}>{data.experience[0].period}</Text>
+                  <View style={s.entryDetails}>
+                    <Text>
+                      <Text style={s.entryTitle}>{data.experience[0].company}</Text>{" "}
+                      <Link src={data.experience[0].url} style={s.url}>
+                        ({data.experience[0].url})
+                      </Link>
+                    </Text>
+                    <Text>{data.experience[0].role}</Text>
+                    <BulletList items={data.experience[0].bullets} />
+                  </View>
+                </View>
+              )}
+            </View>
+            {data.experience.slice(1).map((e, i) => (
+              <View key={i} style={s.entry} wrap={false}>
+                <Text style={s.entryPeriod}>{e.period}</Text>
+                <View style={s.entryDetails}>
+                  <Text>
+                    <Text style={s.entryTitle}>{e.company}</Text>{" "}
+                    <Link src={e.url} style={s.url}>
+                      ({e.url})
+                    </Link>
+                  </Text>
+                  <Text>{e.role}</Text>
+                  <BulletList items={e.bullets} />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Ausbildung */}
+        {show("education") && (
+          <View style={s.section}>
+            <View wrap={false}>
+              <Text style={s.sectionTitle}>
+                {data.sectionTitles?.education || "Ausbildung"}
+              </Text>
+              {data.education.length > 0 && (
+                <View style={s.entry} wrap={false}>
+                  <Text style={s.entryPeriod}>{data.education[0].period}</Text>
+                  <View style={s.entryDetails}>
+                    <Text style={s.entryTitle}>{data.education[0].institution}</Text>
+                    <Text>{data.education[0].degree}</Text>
+                    <BulletList items={data.education[0].bullets} />
+                  </View>
+                </View>
+              )}
+            </View>
+            {data.education.slice(1).map((e, i) => (
+              <View key={i} style={s.entry} wrap={false}>
+                <Text style={s.entryPeriod}>{e.period}</Text>
+                <View style={s.entryDetails}>
+                  <Text style={s.entryTitle}>{e.institution}</Text>
+                  <Text>{e.degree}</Text>
+                  <BulletList items={e.bullets} />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Kenntnisse und Interessen */}
+        {show("interests") && (
+          <View style={s.section} wrap={false}>
+            <Text style={s.sectionTitle}>
+              {data.sectionTitles?.interests || "Kenntnisse und Interessen"}
+            </Text>
+            <View style={s.tableRow} wrap={false}>
+              <Text style={s.label}>{data.languagesLabel || "Fremdsprachen"}</Text>
+              <View style={s.value}>
+                {data.languages.map((lang, i) => (
+                  <Text key={i}>
+                    {lang.name} ({lang.level})
+                  </Text>
+                ))}
+              </View>
+            </View>
+            <View style={s.tableRow} wrap={false}>
+              <Text style={s.label}>Hobbys</Text>
+              <Text style={s.value}>{data.hobbys}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Signature */}
+        <View style={s.signature} wrap={false}>
+          <Text style={s.sigLocation}>
+            <Text style={s.sigCity}>{data.signatureCity}</Text>
+            <Text>, den {data.signatureDate}</Text>
+          </Text>
+          {data.signature ? (
+            <Image src={data.signature} style={s.sigImage} />
+          ) : (
+            <Text style={s.sigText}>
+              {data.personalFields?.[0]?.value || "Unterschrift"}
+            </Text>
+          )}
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 export default LebenslaufPDF;

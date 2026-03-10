@@ -1,4 +1,3 @@
-import PhotoUpload from "./PhotoUpload";
 import type { AnschreibenData } from "../data/defaultData";
 
 interface AnschreibenPreviewProps {
@@ -9,13 +8,14 @@ export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
   const { margins } = data;
 
   return (
-    <div className="w-full flex justify-center py-8 px-4 sm:px-0 bg-[#525659] min-h-screen overflow-x-auto">
+    <div className="w-full flex justify-center items-start h-100 pt-4 sm:pt-8 bg-transparent overflow-visible">
       <div
         id="anschreiben-document"
-        className="bg-white shadow-2xl transition-all flex-shrink-0"
+        className="bg-white shadow-2xl transition-all shrink-0 origin-top scale-[0.32] xs:scale-[0.42] sm:scale-[0.55] md:scale-[0.7] lg:scale-[0.85] xl:scale-[0.95] 2xl:scale-100 mb-32"
         style={{
           width: "210mm",
           minHeight: "297mm",
+          height: "auto",
           paddingTop: `${margins?.top ?? 30}mm`,
           paddingBottom: `${margins?.bottom ?? 30}mm`,
           paddingLeft: `${margins?.left ?? 25}mm`,
@@ -48,7 +48,7 @@ export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
           </div>
 
           {/* Date */}
-          <div className="text-right mb-[24pt] text-[#3d3d3d]">
+          <div className="text-right mb-8 text-[#3d3d3d]">
             {data.date}
           </div>
 
