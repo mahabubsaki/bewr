@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { cn } from "../lib/utils";
 
 interface EditableTextProps {
   value: string;
@@ -28,7 +29,9 @@ export default function EditableText({
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus();
-      inputRef.current.select();
+      if ("select" in inputRef.current) {
+        inputRef.current.select();
+      }
     }
   }, [editing]);
 
@@ -48,6 +51,7 @@ export default function EditableText({
   };
 
   if (editing) {
+    const commonClasses = "w-full rounded-sm border-2 border-primary bg-background px-1 outline-none ring-0 focus:ring-0";
     return multiline ? (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
@@ -55,9 +59,8 @@ export default function EditableText({
         onChange={(e) => setTempValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className={`editable-input editable-textarea ${className}`}
+        className={cn(commonClasses, "min-h-[100px] resize-none py-1", className)}
         placeholder={placeholder}
-        autoFocus
       />
     ) : (
       <input
@@ -67,16 +70,19 @@ export default function EditableText({
         onChange={(e) => setTempValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className={`editable-input ${className}`}
+        className={cn(commonClasses, "h-auto py-0", className)}
         placeholder={placeholder}
-        autoFocus
       />
     );
   }
 
   return (
     <Tag
-      className={`editable-text ${className} ${!value ? "editable-placeholder" : ""}`}
+      className={cn(
+        "cursor-pointer transition-colors hover:bg-primary/5",
+        !value && "text-muted-foreground italic",
+        className
+      )}
       onClick={(e) => {
         e.stopPropagation();
         setEditing(true);

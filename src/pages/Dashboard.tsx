@@ -37,6 +37,12 @@ import {
 import { mergePdfs, base64ToBlob } from "../utils/mergePdfs";
 import { useNavigate } from "react-router-dom";
 import { formatFilename } from "../utils/dateUtils";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Separator } from "../components/ui/separator";
 
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
@@ -245,225 +251,212 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-hero">
-        <h1>Bewerbung Manager</h1>
-        <p>Verwalten Sie Ihre Bewerbungsunterlagen an einem Ort</p>
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="py-12 pb-10 text-center">
+        <h1 className="mb-2 bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-4xl font-extrabold text-transparent">
+          Bewerbung Manager
+        </h1>
+        <p className="text-muted-foreground">
+          Verwalten Sie Ihre Bewerbungsunterlagen an einem Ort
+        </p>
       </div>
 
       {/* Document Cards */}
-      <div className="dashboard-cards">
-        <div className="doc-card" onClick={() => navigate("/deckblatt")}>
-          <div className="doc-card-icon deck-icon">
-            <Layers size={32} />
-          </div>
-          <div className="doc-card-info">
-            <h3>Deckblatt</h3>
-            <p>Titelseite Ihrer Bewerbung</p>
-            <span
-              className={`doc-status ${hasDeckblatt ? "status-ready" : "status-default"}`}
-            >
-              {hasDeckblatt ? "✓ Bearbeitet" : "Standard"}
-            </span>
-          </div>
-        </div>
-
-        <div className="doc-card" onClick={() => navigate("/anschreiben")}>
-          <div className="doc-card-icon ans-icon">
-            <Mail size={32} />
-          </div>
-          <div className="doc-card-info">
-            <h3>Anschreiben</h3>
-            <p>Ihr Bewerbungsschreiben</p>
-            <span
-              className={`doc-status ${hasAnschreiben ? "status-ready" : "status-default"}`}
-            >
-              {hasAnschreiben ? "✓ Bearbeitet" : "Standard"}
-            </span>
-          </div>
-        </div>
-
-        <div className="doc-card" onClick={() => navigate("/lebenslauf")}>
-          <div className="doc-card-icon lbl-icon">
-            <FileText size={32} />
-          </div>
-          <div className="doc-card-info">
-            <h3>Lebenslauf</h3>
-            <p>Ihr tabellarischer Lebenslauf</p>
-            <span
-              className={`doc-status ${hasLebenslauf ? "status-ready" : "status-default"}`}
-            >
-              {hasLebenslauf ? "✓ Bearbeitet" : "Standard"}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Certificates Section */}
-      <div className="dashboard-section">
-        <div className="section-header">
-          <Upload size={22} />
-          <h2>Zeugnisse & Zertifikate</h2>
-        </div>
-        <PdfUploader files={certificates} onChange={setCertificates} />
-      </div>
-
-      {/* Download Section */}
-      <div className="dashboard-section download-section">
-        <div className="section-header">
-          <Package size={22} />
-          <h2>Downloads</h2>
-        </div>
-        <div className="download-grid">
-          <button
-            className="download-card"
-            onClick={() => downloadSingle("deckblatt")}
-            disabled={loading !== null}
+      <div className="mb-10 grid gap-5 sm:grid-cols-3">
+        {[
+          {
+            id: "deckblatt",
+            title: "Deckblatt",
+            desc: "Titelseite Ihrer Bewerbung",
+            icon: Layers,
+            color: "text-blue-500 bg-blue-500/10",
+            ready: hasDeckblatt,
+            path: "/deckblatt"
+          },
+          {
+            id: "anschreiben",
+            title: "Anschreiben",
+            desc: "Ihr Bewerbungsschreiben",
+            icon: Mail,
+            color: "text-emerald-500 bg-emerald-500/10",
+            ready: hasAnschreiben,
+            path: "/anschreiben"
+          },
+          {
+            id: "lebenslauf",
+            title: "Lebenslauf",
+            desc: "Ihr tabellarischer Lebenslauf",
+            icon: FileText,
+            color: "text-amber-500 bg-amber-500/10",
+            ready: hasLebenslauf,
+            path: "/lebenslauf"
+          },
+        ].map((item) => (
+          <Card
+            key={item.id}
+            className="group cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+            onClick={() => navigate(item.path)}
           >
-            <Layers size={24} />
-            <span>Deckblatt</span>
-            {loading === "deckblatt" && (
-              <Loader2 size={16} className="spinner" />
-            )}
-          </button>
-          <button
-            className="download-card"
-            onClick={() => downloadSingle("anschreiben")}
-            disabled={loading !== null}
-          >
-            <Mail size={24} />
-            <span>Anschreiben</span>
-            {loading === "anschreiben" && (
-              <Loader2 size={16} className="spinner" />
-            )}
-          </button>
-          <button
-            className="download-card"
-            onClick={() => downloadSingle("lebenslauf")}
-            disabled={loading !== null}
-          >
-            <FileText size={24} />
-            <span>Lebenslauf</span>
-            {loading === "lebenslauf" && (
-              <Loader2 size={16} className="spinner" />
-            )}
-          </button>
-          <button
-            className="download-card download-card-combined"
-            onClick={handleCombinedClick}
-            disabled={loading !== null}
-          >
-            <Download size={24} />
-            <span>Komplette Bewerbung</span>
-            <small>Deckblatt + Anschreiben + Lebenslauf + Zeugnisse</small>
-            {loading === "combined" && (
-              <Loader2 size={16} className="spinner" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Data Management Section */}
-      <div className="dashboard-section management-section">
-        <div className="section-header">
-          <Database size={22} />
-          <h2>Daten-Verwaltung</h2>
-        </div>
-        <div className="management-grid">
-          <div className="management-card">
-            <div className="management-info">
-              <ShieldCheck size={24} className="icon-save" />
-              <div>
-                <h4>Daten Exportieren</h4>
-                <p>Sichern Sie alle Ihre Eingaben in einer JSON-Datei.</p>
+            <CardHeader className="flex flex-row items-center gap-4 pb-4">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${item.color}`}>
+                <item.icon size={24} />
               </div>
-            </div>
-            <button className="management-btn export-btn" onClick={exportData}>
-              Backup erstellen
-            </button>
-          </div>
-
-          <div className="management-card">
-            <div className="management-info">
-              <Settings size={24} className="icon-load" />
-              <div>
-                <h4>Daten Importieren</h4>
-                <p>Stellen Sie Ihre Daten aus einem Backup wieder her.</p>
+              <div className="space-y-1">
+                <CardTitle className="text-lg">{item.title}</CardTitle>
+                <CardDescription>{item.desc}</CardDescription>
               </div>
-            </div>
-            <label className="management-btn import-btn">
-              <span>Backup einspielen</span>
-              <input
-                type="file"
-                accept=".json"
-                onChange={importData}
-                style={{ display: "none" }}
+            </CardHeader>
+            <CardContent>
+              <div className={`inline-flex items-center gap-1 text-xs font-medium ${item.ready ? "text-emerald-500" : "text-muted-foreground"}`}>
+                {item.ready ? "✓ Bearbeitet" : "Standard"}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="space-y-8">
+        {/* Certificates Section */}
+        <section>
+          <div className="mb-4 flex items-center gap-2 px-1">
+            <Upload size={20} className="text-primary" />
+            <h2 className="text-xl font-semibold">Zeugnisse & Zertifikate</h2>
+          </div>
+          <Card>
+            <CardContent className="p-6">
+              <PdfUploader files={certificates} onChange={setCertificates} />
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Download Section */}
+        <section>
+          <div className="mb-4 flex items-center gap-2 px-1">
+            <Package size={20} className="text-primary" />
+            <h2 className="text-xl font-semibold">Downloads</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { id: "deckblatt", label: "Deckblatt", icon: Layers },
+              { id: "anschreiben", label: "Anschreiben", icon: Mail },
+              { id: "lebenslauf", label: "Lebenslauf", icon: FileText },
+            ].map((doc) => (
+              <Button
+                key={doc.id}
+                variant="outline"
+                className="h-20 flex-col gap-1 border-dashed"
+                onClick={() => downloadSingle(doc.id)}
+                disabled={loading !== null}
+              >
+                {loading === doc.id ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <doc.icon size={20} />
+                )}
+                <span>{doc.label}</span>
+              </Button>
+            ))}
+            <Button
+              className="h-20 flex-col gap-1 bg-primary/90 text-primary-foreground hover:bg-primary"
+              onClick={handleCombinedClick}
+              disabled={loading !== null}
+            >
+              {loading === "combined" ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <Download size={20} />
+              )}
+              <div className="flex flex-col items-center">
+                <span>Komplette Bewerbung</span>
+                <span className="text-[10px] opacity-70">Alles in einem PDF</span>
+              </div>
+            </Button>
+          </div>
+        </section>
+
+        <Separator />
+
+        {/* Data Management Section */}
+        <section>
+          <div className="mb-4 flex items-center gap-2 px-1">
+            <Database size={20} className="text-muted-foreground" />
+            <h2 className="text-xl font-semibold">Daten-Verwaltung</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Card className="bg-muted/30">
+              <CardContent className="flex items-center justify-between p-6">
+                <div className="flex gap-4">
+                  <ShieldCheck size={24} className="text-primary" />
+                  <div>
+                    <h4 className="font-medium">Exportieren</h4>
+                    <p className="text-xs text-muted-foreground">Sichern Sie Ihre Eingaben</p>
+                  </div>
+                </div>
+                <Button size="sm" onClick={exportData}>Backup</Button>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-muted/30">
+              <CardContent className="flex items-center justify-between p-6">
+                <div className="flex gap-4">
+                  <Settings size={24} className="text-primary" />
+                  <div>
+                    <h4 className="font-medium">Importieren</h4>
+                    <p className="text-xs text-muted-foreground">Backup wiederherstellen</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <label className="cursor-pointer">
+                    Einspielen
+                    <input type="file" accept=".json" onChange={importData} className="hidden" />
+                  </label>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-destructive/20 bg-destructive/5 sm:col-span-2 lg:col-span-1">
+              <CardContent className="flex items-center justify-between p-6">
+                <div className="flex gap-4">
+                  <Trash2 size={24} className="text-destructive" />
+                  <div>
+                    <h4 className="font-medium">Zurücksetzen</h4>
+                    <p className="text-xs text-muted-foreground">Löscht alle Ihre Daten</p>
+                  </div>
+                </div>
+                <Button variant="destructive" size="sm" onClick={resetToDefault}>Reset</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </div>
+
+      <Dialog open={isFirmaModalOpen} onOpenChange={setIsFirmaModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Kombinierte PDF erstellen</DialogTitle>
+            <DialogDescription>
+              Für welche Firma ist diese Bewerbung? Dies wird im Dateinamen verwendet.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="firma">Firma Name (optional)</Label>
+              <Input
+                id="firma"
+                placeholder="z.B. Google, Siemens, etc."
+                value={firmaName}
+                onChange={(e) => setFirmaName(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && downloadCombined()}
               />
-            </label>
-          </div>
-
-          <div className="management-card card-warning">
-            <div className="management-info">
-              <Trash2 size={24} className="icon-reset" />
-              <div>
-                <h4>Alles Zurücksetzen</h4>
-                <p>Löscht alle Ihre Daten und lädt Beispiel-Inhalte.</p>
-              </div>
-            </div>
-            <button
-              className="management-btn reset-btn"
-              onClick={resetToDefault}
-            >
-              Daten & Vorschau zurücksetzen
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isFirmaModalOpen && (
-        <div
-          className="modal-overlay"
-          onClick={() => setIsFirmaModalOpen(false)}
-        >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Firma Name angeben</h3>
-              <button
-                className="modal-close"
-                onClick={() => setIsFirmaModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <p
-                style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}
-              >
-                Bitte geben Sie den Namen der Firma an, für die diese Bewerbung
-                bestimmt ist. Der Name wird im Dateinamen der PDF verwendet.
-              </p>
-              <div className="modal-field">
-                <label>Firma Name</label>
-                <input
-                  type="text"
-                  autoFocus
-                  value={firmaName}
-                  onChange={(e) => setFirmaName(e.target.value)}
-                  placeholder="z.B. Google, Siemens, etc."
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") downloadCombined();
-                  }}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="modal-save-btn" onClick={downloadCombined}>
-                Kombinierte PDF erstellen
-              </button>
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsFirmaModalOpen(false)}>Abbrechen</Button>
+            <Button onClick={downloadCombined}>PDF Generieren</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

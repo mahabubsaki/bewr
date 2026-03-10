@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Camera } from "lucide-react";
+import { cn } from "../lib/utils";
 
 interface PhotoUploadProps {
   photo: string;
@@ -34,21 +35,30 @@ export default function PhotoUpload({
 
   return (
     <div
-      className={`photo-upload ${className} ${rounded ? "photo-rounded" : ""}`}
+      className={cn(
+        "group relative flex cursor-pointer items-center justify-center overflow-hidden border-2 border-dashed border-muted-foreground/30 bg-muted/50 transition-all hover:border-primary/50 hover:bg-muted font-sans",
+        rounded ? "rounded-full" : "rounded-lg",
+        className
+      )}
       style={{ width, height }}
       onClick={() => fileRef.current?.click()}
       title={label}
     >
       {photo ? (
-        <img
-          src={photo}
-          alt="Foto"
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
+        <>
+          <img
+            src={photo}
+            alt="Foto"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+            <Camera className="text-white" size={24} />
+          </div>
+        </>
       ) : (
-        <div className="photo-placeholder">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <Camera size={24} />
-          <span>{label}</span>
+          <span className="text-[10px] uppercase tracking-wider font-bold">{label}</span>
         </div>
       )}
       <input
@@ -56,7 +66,7 @@ export default function PhotoUpload({
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        style={{ display: "none" }}
+        className="hidden"
       />
     </div>
   );

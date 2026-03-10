@@ -34,17 +34,20 @@ TECHNICAL REQUIREMENTS:
 - Add loading and error states if applicable
 - Make it responsive and mobile-friendly
 
-STYLING REQUIREMENTS:
-- Use CSS modules or styled-components (specify preference)
-- Include hover and focus states
+STYLING & UI REQUIREMENTS:
+- Use Tailwind CSS for all styling (prefer utility classes over custom CSS)
+- Use Lucide React for icons
+- Integrate shadcn/ui components where appropriate (Button, Card, Input, etc.)
+- Use `cn()` utility for class merging from `src/lib/utils.ts`
+- Include hover, focus, and active states
 - Ensure proper contrast ratios
-- Add smooth transitions where appropriate
+- Add smooth transitions and Tailwind animations (animate-in, fade-in, etc.)
 
 OUTPUT FORMAT:
-1. Component file (.tsx)
-2. CSS/Styles file
+1. Component file (.tsx) using Tailwind classes
+2. List of any new shadcn/ui components to install
 3. Usage example with different prop variations
-4. Unit test structure (Jest/React Testing Library)
+4. Unit test structure (optional)
 
 Please ask me any clarifying questions about the specific requirements before generating the component.
 ```
