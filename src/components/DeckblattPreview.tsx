@@ -6,9 +6,17 @@ interface DeckblattPreviewProps {
   scale?: number;
 }
 
-const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({ 
-  data, 
-}) => {
+const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({ data }) => {
+  if (!data?.personal) {
+    return (
+      <div className="w-full flex justify-center h-[400px] items-start pt-4 sm:pt-8 bg-transparent overflow-visible">
+        <div className="bg-white shadow-2xl w-[210mm] h-[297mm] flex items-center justify-center text-slate-400">
+          Initialisierung...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex justify-center h-[400px] items-start pt-4 sm:pt-8 bg-transparent overflow-visible">
       <div
@@ -26,7 +34,7 @@ const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({
           {/* Top Bar - Header matching PDF */}
           <div className="bg-[#f2f2f2] pt-[55pt] pb-[35pt] px-[50pt] text-center border-b border-black/5">
             <h1 className="text-[38pt] font-black tracking-tight text-[#111] uppercase mb-1 leading-none">
-              {data.name || "BEWERBUNG"}
+              {data.personal.name || "BEWERBUNG"}
             </h1>
             <div className="h-1.5 w-28 bg-primary mx-auto mb-7 mt-4 rounded-full shadow-[0_2px_10px_-2px_rgba(var(--primary),0.4)]" />
             <p className="text-[18pt] font-medium text-[#444] tracking-tight italic">
@@ -40,16 +48,22 @@ const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({
               {/* Refined shadow layers for depth */}
               <div className="absolute -inset-6 bg-primary/10 rounded-[20pt] blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700" />
               <div className="relative w-[230pt] h-[300pt] border-[1pt] border-slate-200 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] bg-[#fcfcfc] overflow-hidden flex items-center justify-center ring-[8pt] ring-white">
-                 {data.photo ? (
-                    <img src={data.photo} alt="Foto" className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700" />
-                 ) : (
-                   <div className="flex flex-col items-center justify-center text-slate-300">
-                     <div className="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center mb-5 border-2 border-dashed border-slate-200">
-                       <span className="text-4xl font-extrabold">+</span>
-                     </div>
-                     <p className="text-[10pt] font-black uppercase tracking-[0.25em] opacity-40">Add Portrait</p>
-                   </div>
-                 )}
+                {data.personal.photo ? (
+                  <img
+                    src={data.personal.photo}
+                    alt="Foto"
+                    className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-300">
+                    <div className="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center mb-5 border-2 border-dashed border-slate-200">
+                      <span className="text-4xl font-extrabold">+</span>
+                    </div>
+                    <p className="text-[10pt] font-black uppercase tracking-[0.25em] opacity-40">
+                      Add Portrait
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -65,14 +79,22 @@ const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({
                 </h3>
               </div>
               <div className="text-[11pt] leading-relaxed text-[#333] space-y-2 font-medium">
-                <p className="text-[12pt] font-black mb-1.5 text-black">{data.name}</p>
+                <p className="text-[12pt] font-black mb-1.5 text-black">
+                  {data.personal.name}
+                </p>
                 <div className="h-px w-14 bg-black/10 my-4" />
-                <p className="flex items-center gap-2">{data.street}</p>
-                <p>{data.city}</p>
+                <p className="flex items-center gap-2">
+                  {data.personal.street}
+                </p>
+                <p>{data.personal.city}</p>
                 <div className="pt-3">
-                  <p className="opacity-40 text-[9pt] font-black uppercase tracking-widest mb-1.5">Kontakt</p>
-                  <p className="font-semibold">{data.phone}</p>
-                  <p className="text-primary font-bold">{data.email}</p>
+                  <p className="opacity-40 text-[9pt] font-black uppercase tracking-widest mb-1.5">
+                    Kontakt
+                  </p>
+                  <p className="font-semibold">{data.personal.phone}</p>
+                  <p className="text-primary font-bold">
+                    {data.personal.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -87,8 +109,13 @@ const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({
               </div>
               <ul className="space-y-3">
                 {data.anlagen.map((anlage, idx) => (
-                  <li key={idx} className="flex items-start text-[10.5pt] text-[#333] leading-tight font-medium">
-                    <span className="mr-3 text-primary font-black mt-1 select-none text-[8pt]">●</span>
+                  <li
+                    key={idx}
+                    className="flex items-start text-[10.5pt] text-[#333] leading-tight font-medium"
+                  >
+                    <span className="mr-3 text-primary font-black mt-1 select-none text-[8pt]">
+                      ●
+                    </span>
                     <span className="flex-1">{anlage}</span>
                   </li>
                 ))}

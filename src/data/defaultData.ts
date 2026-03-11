@@ -15,6 +15,15 @@ export interface Skill {
     items: string;
 }
 
+export interface PersonalInfo {
+    name: string;
+    street: string;
+    city: string;
+    phone: string;
+    email: string;
+    photo: string;
+}
+
 export interface Project {
     period: string;
     title: string;
@@ -44,6 +53,7 @@ export interface Language {
 }
 
 export interface LebenslaufData {
+    personalInfo: PersonalInfo;
     personalFields: PersonalField[];
     aboutMe: string;
     skills: Skill[];
@@ -54,7 +64,6 @@ export interface LebenslaufData {
     hobbys: string;
     signatureCity: string;
     signatureDate: string;
-    photo: string;
     signature: string;
     sectionTitles?: Record<string, string>;
     languagesLabel?: string;
@@ -62,11 +71,7 @@ export interface LebenslaufData {
 }
 
 export interface AnschreibenData {
-    senderName: string;
-    senderStreet: string;
-    senderCity: string;
-    senderPhone: string;
-    senderEmail: string;
+    sender: PersonalInfo;
     recipientCompany: string;
     recipientDepartment: string;
     recipientStreet: string;
@@ -82,13 +87,8 @@ export interface AnschreibenData {
 }
 
 export interface DeckblattData {
-    name: string;
+    personal: PersonalInfo;
     position: string;
-    photo: string;
-    street: string;
-    city: string;
-    phone: string;
-    email: string;
     anlagen: string[];
     sectionTitles?: {
         contact: string;
@@ -105,12 +105,16 @@ export interface CertificateFile {
 }
 
 export const defaultLebenslauf: LebenslaufData = {
+    personalInfo: {
+        name: "Max Mustermann",
+        street: "Musterstraße 1",
+        city: "12345 Musterstadt",
+        phone: "0123 / 4567890",
+        email: "max.mustermann@example.com",
+        photo: "",
+    },
     personalFields: [
-        { label: "Name", value: "Max Mustermann" },
         { label: "Geburtsdatum", value: "01.01.1998 in Musterstadt" },
-        { label: "Adresse", value: "Musterstraße 1, 12345 Musterstadt, Deutschland" },
-        { label: "Telefon", value: "+49 123 456789" },
-        { label: "E-Mail", value: "max.mustermann@example.com" },
         { label: "Portfolio", value: "https://portfolio.example.com" },
         { label: "Github", value: "https://github.com/maxmustermann" },
     ],
@@ -192,7 +196,6 @@ export const defaultLebenslauf: LebenslaufData = {
     signatureCity: "Gazipur",
     signatureDate: "09.03.2026",
     signature: "",
-    photo: "",
     sectionTitles: {
         personal: "Persönliche Daten",
         skills: "IT-Kenntnisse",
@@ -207,11 +210,14 @@ export const defaultLebenslauf: LebenslaufData = {
 };
 
 export const defaultAnschreiben: AnschreibenData = {
-    senderName: "Max Mustermann",
-    senderStreet: "Musterstraße 1",
-    senderCity: "12345 Musterstadt",
-    senderPhone: "0123 / 4567890",
-    senderEmail: "max.mustermann@example.com",
+    sender: {
+        name: "Max Mustermann",
+        street: "Musterstraße 1",
+        city: "12345 Musterstadt",
+        phone: "0123 / 4567890",
+        email: "max.mustermann@example.com",
+        photo: "",
+    },
     recipientCompany: "Musterfirma GmbH",
     recipientDepartment: "z.H. Personalabteilung",
     recipientStreet: "Beispielweg 10",
@@ -234,13 +240,15 @@ export const defaultAnschreiben: AnschreibenData = {
 };
 
 export const defaultDeckblatt: DeckblattData = {
-    name: "Max Mustermann",
+    personal: {
+        name: "Max Mustermann",
+        street: "Musterstraße 1",
+        city: "12345 Musterstadt",
+        phone: "0123 / 4567890",
+        email: "max.mustermann@example.com",
+        photo: "",
+    },
     position: "Bewerbung als Fachinformatiker",
-    photo: "",
-    street: "Musterstraße 1",
-    city: "12345 Musterstadt",
-    phone: "0123 / 4567890",
-    email: "max.mustermann@example.com",
     anlagen: ["Anschreiben", "Lebenslauf", "Zeugnisse"],
     sectionTitles: {
         contact: "Kontaktdaten:",

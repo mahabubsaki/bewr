@@ -5,6 +5,15 @@ interface AnschreibenPreviewProps {
 }
 
 export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
+  if (!data?.sender) {
+    return (
+      <div className="w-full flex justify-center items-start h-100 pt-4 sm:pt-8 bg-transparent overflow-visible">
+        <div className="bg-white shadow-2xl w-[210mm] h-[297mm] flex items-center justify-center text-slate-400">
+          Initialisierung...
+        </div>
+      </div>
+    );
+  }
   const { margins } = data;
 
   return (
@@ -26,9 +35,11 @@ export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
         <div className="flex h-full flex-col font-sans text-[#1a1a1a] leading-[1.4] text-[10pt]">
           {/* Sender Top (Name/Address) - Matching PDF precisely */}
           <div className="w-full text-right mb-[20pt]">
-            <p className="text-[11pt] font-semibold text-[#3d3d3d]">{data.senderName}</p>
-            <p>{data.senderStreet}</p>
-            <p>{data.senderCity}</p>
+            <p className="text-[11pt] font-semibold text-[#3d3d3d]">
+              {data.sender.name}
+            </p>
+            <p>{data.sender.street}</p>
+            <p>{data.sender.city}</p>
           </div>
 
           {/* Address Row (Recipient + Sender Contact) */}
@@ -40,32 +51,33 @@ export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
               <p>{data.recipientCity}</p>
             </div>
             <div className="w-[45%] text-right space-y-0.5">
-              <p className="text-[9.5pt]">Telefon: {data.senderPhone}</p>
+              <p className="text-[9.5pt]">Telefon: {data.sender.phone}</p>
               <p className="text-[9.5pt]">
-                E-Mail: <span className="text-[#3d3d3d]">{data.senderEmail}</span>
+                E-Mail:{" "}
+                <span className="text-[#3d3d3d]">{data.sender.email}</span>
               </p>
             </div>
           </div>
 
           {/* Date */}
-          <div className="text-right mb-8 text-[#3d3d3d]">
-            {data.date}
-          </div>
+          <div className="text-right mb-8 text-[#3d3d3d]">{data.date}</div>
 
           {/* Subject */}
           <div className="mb-[20pt]">
             <h2 className="text-[12pt] font-bold text-gray-900">
-              {data.subject}
+              Betreff: {data.subject}
             </h2>
           </div>
 
           {/* Content */}
           <div className="flex-1">
             <p className="mb-[16pt] text-gray-800">{data.salutation}</p>
-            
+
             <div className="space-y-[10pt]">
               {data.paragraphs.map((para, i) => (
-                <p key={i} className="text-justify leading-[1.4]">{para}</p>
+                <p key={i} className="text-justify leading-[1.4]">
+                  {para}
+                </p>
               ))}
             </div>
           </div>
@@ -73,14 +85,16 @@ export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
           {/* Closing Area */}
           <div className="mt-[16pt]">
             <p className="text-gray-800 mb-[8pt]">{data.closing}</p>
-            <p className="font-medium text-gray-900 mb-[8pt]">{data.senderNameClosing}</p>
-            
+            <p className="font-medium text-gray-900 mb-[8pt]">
+              {data.senderNameClosing}
+            </p>
+
             <div className="mt-2">
               {data.signature ? (
-                <img 
-                  src={data.signature} 
-                  alt="Unterschrift" 
-                  className="h-[50pt] w-[160pt] object-contain" 
+                <img
+                  src={data.signature}
+                  alt="Unterschrift"
+                  className="h-[50pt] w-[160pt] object-contain"
                 />
               ) : (
                 <p className="text-[24pt] font-serif italic text-gray-800 leading-none">

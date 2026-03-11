@@ -1,39 +1,45 @@
 import { useRef } from "react";
-import { Upload, FileText, X,  Download } from "lucide-react";
+import { Upload, FileText, X, Download } from "lucide-react";
 import type { CertificateFile } from "../data/defaultData";
 
 interface PdfUploaderProps {
   files: CertificateFile[];
-  onChange: (files: CertificateFile[]) => void;
+  onAdd: (files: CertificateFile[]) => void;
+  onRemove: (id: string) => void;
 }
 
-export default function PdfUploader({ files, onChange }: PdfUploaderProps) {
+export default function PdfUploader({ files, onAdd, onRemove }: PdfUploaderProps) {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files;
-    if (!selected) return;
+  const processFiles = (selected: FileList | File[]) => {
+    const fileArray = Array.from(selected);
+    if (fileArray.length === 0) return;
 
-    Array.from(selected).forEach((file) => {
+    const results: CertificateFile[] = [];
+    let loadedCount = 0;
+
+    fileArray.forEach((file, idx) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const newFile: CertificateFile = {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        results.push({
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9) + idx,
           name: file.name,
           data: reader.result as string,
           size: file.size,
-        };
-        onChange([...files, newFile]);
+        });
+        loadedCount++;
+        if (loadedCount === fileArray.length) {
+          onAdd(results);
+        }
       };
       reader.readAsDataURL(file);
     });
 
-    // Reset input
     if (fileRef.current) fileRef.current.value = "";
   };
 
-  const removeFile = (id: string) => {
-    onChange(files.filter((f) => f.id !== id));
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) processFiles(e.target.files);
   };
 
   const formatSize = (bytes: number) => {
@@ -52,7 +58,7 @@ export default function PdfUploader({ files, onChange }: PdfUploaderProps) {
   return (
     <div className="w-full space-y-4">
       <div
-        className="group relative flex flex-col items-center justify-center border-2 border-dashed border-slate-200 bg-slate-50/50 p-8 text-center transition-all hover:border-primary/50 hover:bg-primary/5 cursor-pointer rounded-2xl"
+        className="group relative flex flex-col items-center justify-center border-2 border-dashed border-slate-200 bg-white/50 backdrop-blur-sm p-8 text-center transition-all hover:border-primary/50 hover:bg-primary/5 cursor-pointer rounded-2xl shadow-sm"
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -64,23 +70,20 @@ export default function PdfUploader({ files, onChange }: PdfUploaderProps) {
         onDrop={(e) => {
           e.preventDefault();
           e.currentTarget.classList.remove("border-primary", "bg-primary/5");
-          const dt = e.dataTransfer;
-          if (dt.files) {
-            const input = fileRef.current;
-            if (input) {
-              const dataTransfer = new DataTransfer();
-              Array.from(dt.files).forEach((f) => dataTransfer.items.add(f));
-              input.files = dataTransfer.files;
-              input.dispatchEvent(new Event("change", { bubbles: true }));
-            }
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            processFiles(e.dataTransfer.files);
           }
         }}
       >
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-100 group-hover:scale-110 transition-transform">
           <Upload size={24} className="text-primary" />
         </div>
-        <p className="text-sm font-semibold text-slate-700">PDF-Dateien hier ablegen oder klicken</p>
-        <p className="mt-1 text-xs text-slate-500 font-medium tracking-tight">Zeugnisse, Zertifikate, Empfehlungsschreiben</p>
+        <p className="text-sm font-semibold text-slate-700">
+          PDF-Dateien hier ablegen oder klicken
+        </p>
+        <p className="mt-1 text-xs text-slate-500 font-medium tracking-tight">
+          Zeugnisse, Zertifikate, Empfehlungsschreiben
+        </p>
       </div>
 
       <input
@@ -95,15 +98,23 @@ export default function PdfUploader({ files, onChange }: PdfUploaderProps) {
       {files.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {files.map((file) => (
-            <div key={file.id} className="group relative flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm hover:shadow-md transition-all hover:border-primary/20">
+            <div
+              key={file.id}
+              className="group relative flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm hover:shadow-md transition-all hover:border-primary/20"
+            >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                 <FileText size={20} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-bold text-slate-700" title={file.name}>
+                <p
+                  className="truncate text-xs font-bold text-slate-700"
+                  title={file.name}
+                >
                   {file.name}
                 </p>
-                <p className="text-[10px] font-medium text-slate-400">{formatSize(file.size)}</p>
+                <p className="text-[10px] font-medium text-slate-400">
+                  {formatSize(file.size)}
+                </p>
               </div>
               <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
@@ -115,7 +126,7 @@ export default function PdfUploader({ files, onChange }: PdfUploaderProps) {
                 </button>
                 <button
                   className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
-                  onClick={() => removeFile(file.id)}
+                  onClick={() => onRemove(file.id)}
                   title="Entfernen"
                 >
                   <X size={14} />

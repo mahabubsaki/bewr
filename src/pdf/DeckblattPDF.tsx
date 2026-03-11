@@ -133,14 +133,14 @@ const DeckblattPDF = ({ data }: Props) => (
     >
       {/* Header */}
       <View style={s.header}>
-        <Text style={s.name}>{data.name}</Text>
+        <Text style={s.name}>{data.personal.name}</Text>
         <Text style={s.position}>{data.position}</Text>
       </View>
 
       {/* Photo */}
       <View style={s.photoSection}>
-        {data.photo ? (
-          <Image src={data.photo} style={s.photo} />
+        {data.personal.photo ? (
+          <Image src={data.personal.photo} style={s.photo} />
         ) : (
           <View
             style={{
@@ -160,12 +160,13 @@ const DeckblattPDF = ({ data }: Props) => (
           <Text style={s.bottomTitle}>
             {data.sectionTitles?.contact || "Kontaktdaten"}
           </Text>
-          <Text style={s.contactText}>{data.name}</Text>
-          <Text style={s.contactText}>{data.street}</Text>
-          <Text style={s.contactText}>{data.city}</Text>
+          <Text style={s.contactText}>{data.personal.name}</Text>
+          <Text style={s.contactText}>
+            {data.personal.street}, {data.personal.city}
+          </Text>
           <View style={s.contactGap} />
-          <Text style={s.contactText}>Tel.: {data.phone}</Text>
-          <Text style={[s.contactText, s.email]}>{data.email}</Text>
+          <Text style={s.contactText}>Tel.: {data.personal.phone}</Text>
+          <Text style={[s.contactText, s.email]}>{data.personal.email}</Text>
         </View>
         <View style={s.bottomSection}>
           <Text style={s.bottomTitle}>

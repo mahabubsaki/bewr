@@ -144,9 +144,10 @@ const AnschreibenPDF = ({ data }: Props) => (
     >
       {/* Sender Top (Name/Address) */}
       <View style={s.senderTop}>
-        <Text style={s.senderName}>{data.senderName}</Text>
-        <Text>{data.senderStreet}</Text>
-        <Text>{data.senderCity}</Text>
+        <Text style={s.senderName}>{data.sender.name}</Text>
+        <Text>
+          {data.sender.street}, {data.sender.city}
+        </Text>
       </View>
 
       {/* Address Row (Recipient + Sender Contact) */}
@@ -158,9 +159,9 @@ const AnschreibenPDF = ({ data }: Props) => (
           <Text>{data.recipientCity}</Text>
         </View>
         <View style={s.senderBottom}>
-          <Text style={s.senderContact}>Telefon: {data.senderPhone}</Text>
+          <Text style={s.senderContact}>Telefon: {data.sender.phone}</Text>
           <Text style={s.senderContact}>
-            E-Mail: <Text style={s.email}>{data.senderEmail}</Text>
+            E-Mail: <Text style={s.email}>{data.sender.email}</Text>
           </Text>
         </View>
       </View>
@@ -169,7 +170,7 @@ const AnschreibenPDF = ({ data }: Props) => (
       <Text style={s.date}>{data.date}</Text>
 
       {/* Subject */}
-      <Text style={s.subject}>{data.subject}</Text>
+      <Text style={s.subject}>Betreff: {data.subject}</Text>
 
       {/* Salutation */}
       <Text style={s.salutation}>{data.salutation}</Text>

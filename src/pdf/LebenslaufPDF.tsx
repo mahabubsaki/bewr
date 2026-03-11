@@ -144,7 +144,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     marginTop: 1,
     paddingLeft: 2,
-    marginLeft:-2
+    marginLeft: -2,
   },
   bulletDot: {
     width: 12,
@@ -229,8 +229,8 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
         {/* Header */}
         <View style={s.header} fixed={false}>
           <Text style={s.title}>Lebenslauf</Text>
-          {data.photo ? (
-            <Image src={data.photo} style={s.photo} />
+          {data.personalInfo.photo ? (
+            <Image src={data.personalInfo.photo} style={s.photo} />
           ) : (
             <View style={[s.photo, { backgroundColor: "#ffffff" }]} />
           )}
@@ -242,6 +242,24 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
             <Text style={s.sectionTitle}>
               {data.sectionTitles?.personal || "Persönliche Daten"}
             </Text>
+            <View style={s.tableRow} wrap={false}>
+              <Text style={s.label}>Name</Text>
+              <Text style={s.value}>{data.personalInfo.name}</Text>
+            </View>
+            <View style={s.tableRow} wrap={false}>
+              <Text style={s.label}>Adresse</Text>
+              <Text style={s.value}>
+                {data.personalInfo.street}, {data.personalInfo.city}
+              </Text>
+            </View>
+            <View style={s.tableRow} wrap={false}>
+              <Text style={s.label}>Telefon</Text>
+              <Text style={s.value}>{data.personalInfo.phone}</Text>
+            </View>
+            <View style={s.tableRow} wrap={false}>
+              <Text style={s.label}>E-Mail</Text>
+              <Text style={s.value}>{data.personalInfo.email}</Text>
+            </View>
             {(data.personalFields || []).map((field, i) => (
               <View key={i} style={s.tableRow} wrap={false}>
                 <Text style={s.label}>{field.label}</Text>
@@ -325,7 +343,9 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
                   <Text style={s.entryPeriod}>{data.experience[0].period}</Text>
                   <View style={s.entryDetails}>
                     <Text>
-                      <Text style={s.entryTitle}>{data.experience[0].company}</Text>{" "}
+                      <Text style={s.entryTitle}>
+                        {data.experience[0].company}
+                      </Text>{" "}
                       <Link src={data.experience[0].url} style={s.url}>
                         ({data.experience[0].url})
                       </Link>
@@ -365,7 +385,9 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
                 <View style={s.entry} wrap={false}>
                   <Text style={s.entryPeriod}>{data.education[0].period}</Text>
                   <View style={s.entryDetails}>
-                    <Text style={s.entryTitle}>{data.education[0].institution}</Text>
+                    <Text style={s.entryTitle}>
+                      {data.education[0].institution}
+                    </Text>
                     <Text>{data.education[0].degree}</Text>
                     <BulletList items={data.education[0].bullets} />
                   </View>
@@ -392,7 +414,9 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
               {data.sectionTitles?.interests || "Kenntnisse und Interessen"}
             </Text>
             <View style={s.tableRow} wrap={false}>
-              <Text style={s.label}>{data.languagesLabel || "Fremdsprachen"}</Text>
+              <Text style={s.label}>
+                {data.languagesLabel || "Fremdsprachen"}
+              </Text>
               <View style={s.value}>
                 {data.languages.map((lang, i) => (
                   <Text key={i}>
@@ -411,14 +435,16 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
         {/* Signature */}
         <View style={s.signature} wrap={false}>
           <Text style={s.sigLocation}>
-            <Text style={s.sigCity}>{data.signatureCity}</Text>
+            <Text style={s.sigCity}>
+              {data.signatureCity || data.personalInfo.city}
+            </Text>
             <Text>, den {data.signatureDate}</Text>
           </Text>
           {data.signature ? (
             <Image src={data.signature} style={s.sigImage} />
           ) : (
             <Text style={s.sigText}>
-              {data.personalFields?.[0]?.value || "Unterschrift"}
+              {data.personalInfo.name || "Unterschrift"}
             </Text>
           )}
         </View>

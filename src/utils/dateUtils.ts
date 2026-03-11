@@ -18,3 +18,27 @@ export const formatFilename = (name: string, type: string, extra?: string) => {
     }
     return `${filename}.pdf`;
 };
+
+/** Individual doc: FirstName_LastName_DocType[_Company].pdf */
+export const formatDocFilename = (name: string, type: string, company?: string) => {
+    const clean = (str: string) => str.trim().replace(/\s+/g, "_");
+    const parts = name.trim().split(/\s+/);
+    const shortName = parts.length >= 2
+        ? `${parts[0]}_${parts[parts.length - 1]}`
+        : clean(name);
+    let filename = `${shortName}_${clean(type)}`;
+    if (company && company.trim()) {
+        filename += `_${clean(company)}`;
+    }
+    return `${filename}.pdf`;
+};
+
+/** Full merged PDF: Bewerbungsunterlagen_FullName[_Company].pdf */
+export const formatFullFilename = (name: string, company?: string) => {
+    const clean = (str: string) => str.trim().replace(/\s+/g, "_");
+    let filename = `Bewerbungsunterlagen_${clean(name)}`;
+    if (company && company.trim()) {
+        filename += `_${clean(company)}`;
+    }
+    return `${filename}.pdf`;
+};
