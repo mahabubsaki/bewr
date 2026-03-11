@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { generateAnschreibenPdf } from "../utils/generatePdf";
 import MarginControls from "../components/MarginControls";
-import { formatFilename } from "../utils/dateUtils";
+import { formatFilename, getCurrentDateGerman } from "../utils/dateUtils";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -79,6 +79,12 @@ export default function AnschreibenPage() {
         newParas.push(defaultAnschreiben.paragraphs[newParas.length]);
       }
       newData.paragraphs = newParas;
+      updated = true;
+    }
+
+    const today = getCurrentDateGerman();
+    if (data.date !== today) {
+      newData.date = today;
       updated = true;
     }
 
@@ -471,16 +477,6 @@ export default function AnschreibenPage() {
                         <Input
                           value={data.closing}
                           onChange={(e) => update("closing", e.target.value)}
-                          className="bg-white h-10 border-slate-200"
-                        />
-                      </div>
-                      <div className="grid gap-1.5">
-                        <Label className="text-[10px] font-bold text-slate-500 uppercase">
-                          Datum
-                        </Label>
-                        <Input
-                          value={data.date}
-                          onChange={(e) => update("date", e.target.value)}
                           className="bg-white h-10 border-slate-200"
                         />
                       </div>
