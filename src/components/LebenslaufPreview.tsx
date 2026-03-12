@@ -45,6 +45,25 @@ export default function LebenslaufPreview({
           <div key={id} className="mb-3">
             <SectionHeader />
             <div className="space-y-1">
+              <div className="flex py-0.5">
+                <div className="w-[145pt] shrink-0 text-[9.5pt] text-[#555] pr-5">Name</div>
+                <div className="flex-1 text-[10pt] text-[#1a1a1a]">{data.personalInfo.name}</div>
+              </div>
+              <div className="flex py-0.5">
+                <div className="w-[145pt] shrink-0 text-[9.5pt] text-[#555] pr-5">Adresse</div>
+                <div className="flex-1 text-[10pt] text-[#1a1a1a]">
+                  <div>{data.personalInfo.street}</div>
+                  <div>{data.personalInfo.city}</div>
+                </div>
+              </div>
+              <div className="flex py-0.5">
+                <div className="w-[145pt] shrink-0 text-[9.5pt] text-[#555] pr-5">Telefon</div>
+                <div className="flex-1 text-[10pt] text-[#1a1a1a]">{data.personalInfo.phone}</div>
+              </div>
+              <div className="flex py-0.5">
+                <div className="w-[145pt] shrink-0 text-[9.5pt] text-[#555] pr-5">E-Mail</div>
+                <div className="flex-1 text-[10pt] text-[#1a1a1a]">{data.personalInfo.email}</div>
+              </div>
               {data.personalFields?.map((f, i) => (
                 <div key={i} className="flex py-0.5">
                   <div className="w-[145pt] shrink-0 text-[9.5pt] text-[#555] pr-5">
@@ -171,6 +190,11 @@ export default function LebenslaufPreview({
                     {p.url && (
                       <div className="text-[9pt] text-[#555] truncate max-w-62.5">
                         {p.url}
+                      </div>
+                    )}
+                    {p.githubUrl && (
+                      <div className="text-[9pt] text-[#555] truncate max-w-62.5">
+                        {p.githubUrl}
                       </div>
                     )}
                     <ul className="mt-1 space-y-0.5 -ml-0.5">

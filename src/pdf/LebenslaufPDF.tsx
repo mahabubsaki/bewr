@@ -309,9 +309,16 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
                   <Text style={s.entryPeriod}>{data.projects[0].period}</Text>
                   <View style={s.entryDetails}>
                     <Text style={s.entryTitle}>{data.projects[0].title}</Text>
-                    <Link src={data.projects[0].url} style={s.url}>
-                      {data.projects[0].url}
-                    </Link>
+                    {data.projects[0].url ? (
+                      <Link src={data.projects[0].url} style={s.url}>
+                        {data.projects[0].url}
+                      </Link>
+                    ) : null}
+                    {data.projects[0].githubUrl ? (
+                      <Link src={data.projects[0].githubUrl} style={s.url}>
+                        {data.projects[0].githubUrl}
+                      </Link>
+                    ) : null}
                     <BulletList items={data.projects[0].bullets} />
                   </View>
                 </View>
@@ -322,9 +329,16 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
                 <Text style={s.entryPeriod}>{p.period}</Text>
                 <View style={s.entryDetails}>
                   <Text style={s.entryTitle}>{p.title}</Text>
-                  <Link src={p.url} style={s.url}>
-                    {p.url}
-                  </Link>
+                  {p.url ? (
+                    <Link src={p.url} style={s.url}>
+                      {p.url}
+                    </Link>
+                  ) : null}
+                  {p.githubUrl ? (
+                    <Link src={p.githubUrl} style={s.url}>
+                      {p.githubUrl}
+                    </Link>
+                  ) : null}
                   <BulletList items={p.bullets} />
                 </View>
               </View>

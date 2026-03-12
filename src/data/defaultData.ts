@@ -28,6 +28,7 @@ export interface Project {
     period: string;
     title: string;
     url: string;
+    githubUrl?: string;
     bullets: string[];
     technologies?: string;
 }
