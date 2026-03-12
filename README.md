@@ -142,5 +142,5 @@ All data (CV content, images, certificates) is stored exclusively in the **brows
 
 ## License
 
-Private project — all rights reserved.
+This project is proprietary software — all rights reserved. See [LICENSE.md](LICENSE.md) for full terms.
 
