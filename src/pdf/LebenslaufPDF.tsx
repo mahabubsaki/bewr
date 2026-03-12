@@ -248,9 +248,10 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
             </View>
             <View style={s.tableRow} wrap={false}>
               <Text style={s.label}>Adresse</Text>
-              <Text style={s.value}>
-                {data.personalInfo.street}, {data.personalInfo.city}
-              </Text>
+              <View style={s.value}>
+                <Text>{data.personalInfo.street}</Text>
+                <Text>{data.personalInfo.city}</Text>
+              </View>
             </View>
             <View style={s.tableRow} wrap={false}>
               <Text style={s.label}>Telefon</Text>
