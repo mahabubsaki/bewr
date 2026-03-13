@@ -1271,7 +1271,6 @@ export default function LebenslaufPage() {
           setFirmaName("");
           await executeDownload(c);
         }}
-        docLabel="Lebenslauf"
       />
     </>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CopyPlus, Layers3, Pencil, Plus, Trash2 } from "lucide-react";
+import { Layers3, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   ACTIVE_VARIATION_STORAGE_KEY,
   VARIATION_CHANGED_EVENT,
@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import CopyPresetDialog from "../editor/CopyPresetDialog";
 
 export default function VariationManager() {
   const [state, setState] = useState(() => ensureVariationSystem());
@@ -59,15 +60,6 @@ export default function VariationManager() {
 
   const handleCreateBlank = () => {
     createVariation(newVariationName, { switchToNew: true });
-    setNewVariationName("");
-  };
-
-  const handleDuplicateCurrent = () => {
-    if (!activeVariation) return;
-    createVariation(
-      newVariationName || `${activeVariation.name} Kopie`,
-      { sourceVariationId: activeVariation.id, switchToNew: true },
-    );
     setNewVariationName("");
   };
 
@@ -172,19 +164,14 @@ export default function VariationManager() {
             placeholder="z.B. Frontend Entwickler"
             className="h-10 rounded-xl"
           />
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            Neue leere Variation erstellen oder das aktive Preset komplett kopieren.
+          </p>
           <div className="flex gap-2">
             <Button type="button" size="sm" className="h-9 flex-1 rounded-xl" onClick={handleCreateBlank}>
               <Plus size={14} className="mr-1" /> Neu
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-9 flex-1 rounded-xl"
-              onClick={handleDuplicateCurrent}
-            >
-              <CopyPlus size={14} className="mr-1" /> Duplizieren
-            </Button>
+            <CopyPresetDialog className="h-9 flex-1 rounded-xl" />
           </div>
         </div>
       </div>
