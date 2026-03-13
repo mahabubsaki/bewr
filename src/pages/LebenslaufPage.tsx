@@ -859,6 +859,42 @@ export default function LebenslaufPage() {
                                 </div>
                               </div>
 
+                              {/* Role and URL fields — experience only */}
+                              {id === "experience" && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  <div className="space-y-1.5">
+                                    <Label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600/70">
+                                      Position / Rolle
+                                    </Label>
+                                    <Input
+                                      className="h-11 rounded-xl border-border/60 bg-background/80 transition-all focus-visible:border-amber-500/60 focus-visible:ring-2 focus-visible:ring-amber-500/15 placeholder:text-muted-foreground/30"
+                                      placeholder="z.B. Junior Entwickler"
+                                      value={item.role || ""}
+                                      onChange={(e) => {
+                                        const a = [...(data[id] as any)];
+                                        a[i].role = e.target.value;
+                                        update(id, a);
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="space-y-1.5">
+                                    <Label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600/70">
+                                      Website / URL (optional)
+                                    </Label>
+                                    <Input
+                                      className="h-11 rounded-xl border-border/60 bg-background/80 transition-all focus-visible:border-amber-500/60 focus-visible:ring-2 focus-visible:ring-amber-500/15 placeholder:text-muted-foreground/30"
+                                      placeholder="https://firma.example.com"
+                                      value={item.url || ""}
+                                      onChange={(e) => {
+                                        const a = [...(data[id] as any)];
+                                        a[i].url = e.target.value;
+                                        update(id, a);
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+
                               {/* URL fields — projects only */}
                               {id === "projects" && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -924,7 +960,7 @@ export default function LebenslaufPage() {
                               period: "",
                               bullets: ["Neuer Eintrag"],
                             };
-                            if (id === "experience") skeleton.company = "";
+                            if (id === "experience") { skeleton.company = ""; skeleton.role = ""; skeleton.url = ""; }
                             if (id === "education") skeleton.institution = "";
                             if (id === "projects") skeleton.title = "";
                             insertIntoArray(
