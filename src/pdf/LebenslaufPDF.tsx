@@ -4,52 +4,17 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Link,
   Image,
 } from "@react-pdf/renderer";
 import type { LebenslaufData } from "../data/defaultData";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type DocumentFontId,
+} from "../lib/fontConfig";
+import { getPdfDocumentFontFamily, registerPdfFonts } from "./pdfFonts";
 
-// Import local Roboto fonts
-import RobotoLight from "../assets/font/roboto/Roboto-Light.ttf";
-import RobotoRegular from "../assets/font/roboto/Roboto-Regular.ttf";
-import RobotoMedium from "../assets/font/roboto/Roboto-Medium.ttf";
-import RobotoBold from "../assets/font/roboto/Roboto-Bold.ttf";
-// Register Dancing Script from URL (still needed for signature unless user provides local file)
-const DANCING_SCRIPT_URL =
-  "https://fonts.gstatic.com/s/dancingscript/v8/DK0eTGXiZjN6yA8zAEyM2S5FJMZltoAAwO2fP7iHu2o.ttf";
-
-// Register Roboto font (local TTF files)
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: RobotoLight,
-      fontWeight: 300,
-    },
-    {
-      src: RobotoRegular,
-      fontWeight: 400,
-    },
-    {
-      src: RobotoMedium,
-      fontWeight: 500,
-    },
-    {
-      src: RobotoBold,
-      fontWeight: 700,
-    },
-  ],
-});
-
-// Register Dancing Script for signature
-Font.register({
-  family: "DancingScript",
-  src: DANCING_SCRIPT_URL,
-});
-
-// Disable hyphenation
-Font.registerHyphenationCallback((word) => [word]);
+registerPdfFonts();
 
 const ACCENT = "#3d3d3d";
 const TEXT_LIGHT = "#555";
@@ -57,7 +22,6 @@ const LABEL_WIDTH = 145;
 
 const s = StyleSheet.create({
   page: {
-    fontFamily: "Roboto",
     fontSize: 10,
     lineHeight: 1.25,
     color: "#1a1a1a",
@@ -208,10 +172,16 @@ const BulletList = ({ items }: { items: string[] }) => (
 interface Props {
   data: LebenslaufData;
   activeSections?: string[];
+  fontId?: DocumentFontId;
 }
 
-const LebenslaufPDF = ({ data, activeSections }: Props) => {
+const LebenslaufPDF = ({
+  data,
+  activeSections,
+  fontId = DEFAULT_EDITOR_FONT_SETTINGS.fontId,
+}: Props) => {
   const show = (id: string) => !activeSections || activeSections.includes(id);
+  const documentFontFamily = getPdfDocumentFontFamily(fontId);
 
   return (
     <Document>
@@ -219,6 +189,7 @@ const LebenslaufPDF = ({ data, activeSections }: Props) => {
         size="A4"
         style={{
           ...s.page,
+          fontFamily: documentFontFamily,
           paddingTop: `${data.margins.top}mm`,
           paddingBottom: `${data.margins.bottom}mm`,
           paddingLeft: `${data.margins.left}mm`,

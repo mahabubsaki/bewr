@@ -1,12 +1,13 @@
 import React from "react";
 import type { DeckblattData } from "../data/defaultData";
+import { getBrowserDocumentFontFamily, type DocumentFontId } from "../lib/fontConfig";
 
 interface DeckblattPreviewProps {
   data: DeckblattData;
-  scale?: number;
+  fontId: DocumentFontId;
 }
 
-const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({ data }) => {
+const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({ data, fontId }) => {
   if (!data?.personal) {
     return (
       <div className="w-full flex justify-center h-[400px] items-start pt-4 sm:pt-8 bg-transparent overflow-visible">
@@ -30,7 +31,10 @@ const DeckblattPreview: React.FC<DeckblattPreviewProps> = ({ data }) => {
           backgroundColor: "#fff",
         }}
       >
-        <div className="flex h-full flex-col font-sans text-[#1a1a1a] leading-normal antialiased">
+        <div
+          className="flex h-full flex-col text-[#1a1a1a] leading-normal antialiased"
+          style={{ fontFamily: getBrowserDocumentFontFamily(fontId) }}
+        >
           {/* Top Bar - Header matching PDF */}
           <div className="bg-[#f2f2f2] pt-[55pt] pb-[35pt] px-[50pt] text-center border-b border-black/5">
             <h1 className="text-[38pt] font-black tracking-tight text-[#111] uppercase mb-1 leading-none">

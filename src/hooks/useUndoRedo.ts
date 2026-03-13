@@ -10,17 +10,17 @@ export function useUndoRedo<T>(key: string, defaultValue: T): {
     canUndo: boolean;
     canRedo: boolean;
 } {
-    const getInitial = (): T => {
+    const getInitial = (storageKey: string): T => {
         try {
-            const stored = localStorage.getItem(key);
+            const stored = localStorage.getItem(storageKey);
             return stored ? JSON.parse(stored) : defaultValue;
         } catch {
             return defaultValue;
         }
     };
 
-    const [value, setValueInternal] = useState<T>(getInitial);
-    const [history, setHistory] = useState<T[]>([getInitial()]);
+    const [value, setValueInternal] = useState<T>(() => getInitial(key));
+    const [history, setHistory] = useState<T[]>([getInitial(key)]);
     const [historyIndex, setHistoryIndex] = useState(0);
     const [isUndoRedo, setIsUndoRedo] = useState(false);
 
@@ -32,6 +32,16 @@ export function useUndoRedo<T>(key: string, defaultValue: T): {
             console.error('Failed to save:', e);
         }
     }, [key, value]);
+
+    // Reinitialize when storage key changes (e.g. switching variation)
+    useEffect(() => {
+        const initial = getInitial(key);
+        setIsUndoRedo(true);
+        setValueInternal(initial);
+        setHistory([JSON.parse(JSON.stringify(initial))]);
+        setHistoryIndex(0);
+        setIsUndoRedo(false);
+    }, [key]);
 
     const setValue = useCallback((v: T | ((prev: T) => T)) => {
         setValueInternal((prev) => {

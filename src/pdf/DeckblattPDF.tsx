@@ -5,42 +5,18 @@ import {
   View,
   StyleSheet,
   Image,
-  Font,
 } from "@react-pdf/renderer";
 import type { DeckblattData } from "../data/defaultData";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type DocumentFontId,
+} from "../lib/fontConfig";
+import { getPdfDocumentFontFamily, registerPdfFonts } from "./pdfFonts";
 
-// Import local Roboto fonts
-import RobotoLight from "../assets/font/roboto/Roboto-Light.ttf";
-import RobotoRegular from "../assets/font/roboto/Roboto-Regular.ttf";
-import RobotoMedium from "../assets/font/roboto/Roboto-Medium.ttf";
-import RobotoBold from "../assets/font/roboto/Roboto-Bold.ttf";
-
-// Register Roboto font (local TTF files)
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: RobotoLight,
-      fontWeight: 300,
-    },
-    {
-      src: RobotoRegular,
-      fontWeight: 400,
-    },
-    {
-      src: RobotoMedium,
-      fontWeight: 500,
-    },
-    {
-      src: RobotoBold,
-      fontWeight: 700,
-    },
-  ],
-});
+registerPdfFonts();
 
 const s = StyleSheet.create({
   page: {
-    fontFamily: "Roboto",
     fontSize: 10,
     color: "#1a1a1a",
   },
@@ -117,20 +93,28 @@ const s = StyleSheet.create({
 
 interface Props {
   data: DeckblattData;
+  fontId?: DocumentFontId;
 }
 
-const DeckblattPDF = ({ data }: Props) => (
-  <Document>
-    <Page
-      size="A4"
-      style={{
-        ...s.page,
-        paddingTop: `${data.margins.top}mm`,
-        paddingBottom: `${data.margins.bottom}mm`,
-        paddingLeft: `${data.margins.left}mm`,
-        paddingRight: `${data.margins.right}mm`,
-      }}
-    >
+const DeckblattPDF = ({
+  data,
+  fontId = DEFAULT_EDITOR_FONT_SETTINGS.fontId,
+}: Props) => {
+  const documentFontFamily = getPdfDocumentFontFamily(fontId);
+
+  return (
+    <Document>
+      <Page
+        size="A4"
+        style={{
+          ...s.page,
+          fontFamily: documentFontFamily,
+          paddingTop: `${data.margins.top}mm`,
+          paddingBottom: `${data.margins.bottom}mm`,
+          paddingLeft: `${data.margins.left}mm`,
+          paddingRight: `${data.margins.right}mm`,
+        }}
+      >
       {/* Header */}
       <View style={s.header}>
         <Text style={s.name}>{data.personal.name}</Text>
@@ -180,8 +164,9 @@ const DeckblattPDF = ({ data }: Props) => (
           ))}
         </View>
       </View>
-    </Page>
-  </Document>
-);
+      </Page>
+    </Document>
+  );
+};
 
 export default DeckblattPDF;

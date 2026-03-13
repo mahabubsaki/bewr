@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCertificatesDB } from "../hooks/useCertificatesDB";
@@ -22,6 +22,18 @@ import {
 } from "../utils/generatePdf";
 import { mergePdfs, base64ToBlob } from "../utils/mergePdfs";
 import { formatDocFilename, formatFullFilename } from "../utils/dateUtils";
+import { useActiveVariationId } from "../hooks/useActiveVariationId";
+import {
+  ACTIVE_VARIATION_STORAGE_KEY,
+  VARIATION_MIGRATION_FLAG,
+  VARIATIONS_STORAGE_KEY,
+  ensureVariationSystem,
+  getVariationStorageKey,
+} from "../lib/variationManager";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type EditorFontSettings,
+} from "../lib/fontConfig";
 import {
   Dialog,
   DialogContent,
@@ -36,10 +48,12 @@ import { Label } from "../components/ui/label";
 import DashboardHero from "../components/dashboard/DashboardHero";
 import DocumentCards from "../components/dashboard/DocumentCards";
 import DashboardPanels from "../components/dashboard/DashboardPanels";
+import VariationManager from "../components/dashboard/VariationManager";
 
-function loadFromStorage<T>(key: string, fallback: T): T {
+function loadFromStorage<T>(variationId: string, key: string, fallback: T): T {
   try {
-    const stored = localStorage.getItem(key);
+    const scopedKey = getVariationStorageKey(key, variationId);
+    const stored = localStorage.getItem(scopedKey);
     return stored ? JSON.parse(stored) : fallback;
   } catch {
     return fallback;
@@ -48,15 +62,20 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const activeVariationId = useActiveVariationId();
   const { certificates, addCertificates, removeCertificate, clearCertificates } = useCertificatesDB();
   const [loading, setLoading] = useState<string | null>(null);
   const [isFirmaModalOpen, setIsFirmaModalOpen] = useState(false);
   const [firmaName, setFirmaName] = useState("");
   const [pendingDownload, setPendingDownload] = useState<string | null>(null);
 
-  const hasLebenslauf  = !!localStorage.getItem("lebenslauf");
-  const hasAnschreiben = !!localStorage.getItem("anschreiben");
-  const hasDeckblatt   = !!localStorage.getItem("deckblatt");
+  useEffect(() => {
+    ensureVariationSystem();
+  }, []);
+
+  const hasLebenslauf  = !!localStorage.getItem(getVariationStorageKey("lebenslauf", activeVariationId));
+  const hasAnschreiben = !!localStorage.getItem(getVariationStorageKey("anschreiben", activeVariationId));
+  const hasDeckblatt   = !!localStorage.getItem(getVariationStorageKey("deckblatt", activeVariationId));
 
   const openDownloadModal = (docId: string) => {
     setPendingDownload(docId);
@@ -67,15 +86,21 @@ export default function Dashboard() {
   const executeSingleDownload = async (docId: string, company: string) => {
     setLoading(docId);
     try {
+      const fontSettings = loadFromStorage<EditorFontSettings>(
+        activeVariationId,
+        "editor-font-settings",
+        DEFAULT_EDITOR_FONT_SETTINGS,
+      );
+
       if (docId === "lebenslauf") {
-        const data = loadFromStorage<LebenslaufData>("lebenslauf", defaultLebenslauf);
-        await generateLebenslaufPdf(data, formatDocFilename(data.personalInfo.name, "Lebenslauf", company));
+        const data = loadFromStorage<LebenslaufData>(activeVariationId, "lebenslauf", defaultLebenslauf);
+        await generateLebenslaufPdf(data, formatDocFilename(data.personalInfo.name, "Lebenslauf", company), undefined, fontSettings.fontId);
       } else if (docId === "anschreiben") {
-        const data = loadFromStorage<AnschreibenData>("anschreiben", defaultAnschreiben);
-        await generateAnschreibenPdf(data, formatDocFilename(data.sender.name, "Anschreiben", company));
+        const data = loadFromStorage<AnschreibenData>(activeVariationId, "anschreiben", defaultAnschreiben);
+        await generateAnschreibenPdf(data, formatDocFilename(data.sender.name, "Anschreiben", company), fontSettings.fontId);
       } else if (docId === "deckblatt") {
-        const data = loadFromStorage<DeckblattData>("deckblatt", defaultDeckblatt);
-        await generateDeckblattPdf(data, formatDocFilename(data.personal.name, "Deckblatt", company));
+        const data = loadFromStorage<DeckblattData>(activeVariationId, "deckblatt", defaultDeckblatt);
+        await generateDeckblattPdf(data, formatDocFilename(data.personal.name, "Deckblatt", company), fontSettings.fontId);
       }
     } catch (err) {
       console.error("PDF generation failed:", err);
@@ -99,28 +124,35 @@ export default function Dashboard() {
   const runCombinedDownload = async (company: string) => {
     setLoading("combined");
     try {
+      const fontSettings = loadFromStorage<EditorFontSettings>(
+        activeVariationId,
+        "editor-font-settings",
+        DEFAULT_EDITOR_FONT_SETTINGS,
+      );
       const blobs: Blob[] = [];
       let candidateName = "Bewerbung";
 
       try {
-        const d = loadFromStorage<DeckblattData>("deckblatt", defaultDeckblatt);
+        const d = loadFromStorage<DeckblattData>(activeVariationId, "deckblatt", defaultDeckblatt);
         candidateName = d.personal.name;
-        blobs.push(await generateDeckblattBlob(d));
+        blobs.push(await generateDeckblattBlob(d, fontSettings.fontId));
       } catch { console.warn("Deckblatt skipped"); }
 
       try {
-        const d = loadFromStorage<AnschreibenData>("anschreiben", defaultAnschreiben);
+        const d = loadFromStorage<AnschreibenData>(activeVariationId, "anschreiben", defaultAnschreiben);
         if (!candidateName) candidateName = d.sender.name;
-        blobs.push(await generateAnschreibenBlob(d));
+        blobs.push(await generateAnschreibenBlob(d, fontSettings.fontId));
       } catch { console.warn("Anschreiben skipped"); }
 
       try {
-        const d = loadFromStorage<LebenslaufData>("lebenslauf", defaultLebenslauf);
+        const d = loadFromStorage<LebenslaufData>(activeVariationId, "lebenslauf", defaultLebenslauf);
         if (!candidateName) candidateName = d.personalInfo.name;
         const DEFAULT_SECTIONS = ["personal","about","skills","projects","experience","education","interests"];
-        const sectionOrder: string[] = JSON.parse(localStorage.getItem("lebenslauf-section-order") || "null") || DEFAULT_SECTIONS;
-        const deleted: string[] = JSON.parse(localStorage.getItem("lebenslauf-deleted-sections") || "[]");
-        blobs.push(await generateLebenslaufBlob(d, sectionOrder.filter((id) => !deleted.includes(id))));
+        const sectionOrderKey = getVariationStorageKey("lebenslauf-section-order", activeVariationId);
+        const deletedKey = getVariationStorageKey("lebenslauf-deleted-sections", activeVariationId);
+        const sectionOrder: string[] = JSON.parse(localStorage.getItem(sectionOrderKey) || "null") || DEFAULT_SECTIONS;
+        const deleted: string[] = JSON.parse(localStorage.getItem(deletedKey) || "[]");
+        blobs.push(await generateLebenslaufBlob(d, sectionOrder.filter((id) => !deleted.includes(id)), fontSettings.fontId));
       } catch { console.warn("Lebenslauf skipped"); }
 
       for (const cert of certificates) {
@@ -141,10 +173,28 @@ export default function Dashboard() {
 
   const exportData = () => {
     const data: Record<string, unknown> = {};
-    ["lebenslauf","anschreiben","deckblatt","certificates","lebenslauf-section-order","lebenslauf-deleted-sections"].forEach((key) => {
+    const rootKeys = [
+      VARIATIONS_STORAGE_KEY,
+      ACTIVE_VARIATION_STORAGE_KEY,
+      VARIATION_MIGRATION_FLAG,
+    ];
+
+    for (let index = 0; index < localStorage.length; index++) {
+      const key = localStorage.key(index);
+      if (!key) continue;
+
+      const include = rootKeys.includes(key) || key.startsWith("variation:");
+      if (!include) continue;
+
       const val = localStorage.getItem(key);
-      if (val) { try { data[key] = JSON.parse(val); } catch { data[key] = val; } }
-    });
+      if (!val) continue;
+      try {
+        data[key] = JSON.parse(val);
+      } catch {
+        data[key] = val;
+      }
+    }
+
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
     const a = Object.assign(document.createElement("a"), { href: url, download: `Bewerbung_Daten_Backup_${new Date().toISOString().split("T")[0]}.json` });
     document.body.appendChild(a);
@@ -161,7 +211,9 @@ export default function Dashboard() {
       try {
         const data = JSON.parse(ev.target?.result as string);
         if (confirm("Möchten Sie alle Daten überschreiben? Dies kann nicht rückgängig gemacht werden.")) {
+          localStorage.clear();
           Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)));
+          ensureVariationSystem();
           window.location.reload();
         }
       } catch { alert("Fehler beim Importieren der Datei. Bitte stellen Sie sicher, dass es eine gültige JSON-Datei ist."); }
@@ -188,6 +240,8 @@ export default function Dashboard() {
       transition={{ duration: 0.4 }}
     >
       <div className="mx-auto max-w-7xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+
+        <VariationManager />
 
         <DashboardHero
           hasDeckblatt={hasDeckblatt}

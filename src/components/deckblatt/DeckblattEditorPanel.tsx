@@ -114,10 +114,10 @@ export default function DeckblattEditorPanel({ data, update }: Props) {
         </div>
 
         <div className="flex-1 px-4 py-5 pb-32">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
 
             {/* ── Basis Tab ─────────────────────────────────── */}
-            <TabsContent value="basis" className="m-0">
+            <TabsContent key="basis" value="basis" className="m-0">
               <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
 
                 {/* Name & Position */}
@@ -216,7 +216,7 @@ export default function DeckblattEditorPanel({ data, update }: Props) {
             </TabsContent>
 
             {/* ── Anlagen Tab ───────────────────────────────── */}
-            <TabsContent value="anlagen" className="m-0">
+            <TabsContent key="anlagen" value="anlagen" className="m-0">
               <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
                 <FieldCard>
                   <div className="p-5">

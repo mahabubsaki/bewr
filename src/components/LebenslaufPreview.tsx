@@ -1,4 +1,5 @@
 import type { LebenslaufData } from "../data/defaultData";
+import { getBrowserDocumentFontFamily, type DocumentFontId } from "../lib/fontConfig";
 
 type SectionId =
   | "personal"
@@ -23,12 +24,14 @@ const SECTION_LABELS: Record<SectionId, string> = {
 interface LebenslaufPreviewProps {
   data: LebenslaufData;
   activeSections: SectionId[];
+  fontId: DocumentFontId;
   onUpdate: (path: string, value: unknown) => void;
 }
 
 export default function LebenslaufPreview({
   data,
   activeSections,
+  fontId,
 }: LebenslaufPreviewProps) {
   const renderPreviewSection = (id: SectionId) => {
     const title = data.sectionTitles?.[id] || SECTION_LABELS[id];
@@ -268,7 +271,10 @@ export default function LebenslaufPreview({
           backgroundColor: "white",
         }}
       >
-        <div className="flex h-full flex-col font-sans text-[#1a1a1a] leading-tight">
+        <div
+          className="flex h-full flex-col text-[#1a1a1a] leading-tight"
+          style={{ fontFamily: getBrowserDocumentFontFamily(fontId) }}
+        >
           {/* CV Header */}
           <div className="flex justify-between items-start mb-4">
             <div>

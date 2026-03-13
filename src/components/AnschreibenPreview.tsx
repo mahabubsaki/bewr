@@ -1,10 +1,12 @@
 import type { AnschreibenData } from "../data/defaultData";
+import { getBrowserDocumentFontFamily, type DocumentFontId } from "../lib/fontConfig";
 
 interface AnschreibenPreviewProps {
   data: AnschreibenData;
+  fontId: DocumentFontId;
 }
 
-export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
+export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewProps) {
   if (!data?.sender) {
     return (
       <div className="w-full flex justify-center items-start h-100 pt-4 sm:pt-8 bg-transparent overflow-visible">
@@ -32,7 +34,10 @@ export default function AnschreibenPreview({ data }: AnschreibenPreviewProps) {
           boxSizing: "border-box",
         }}
       >
-        <div className="flex h-full flex-col font-sans text-[#1a1a1a] leading-[1.4] text-[10pt]">
+        <div
+          className="flex h-full flex-col text-[#1a1a1a] leading-[1.4] text-[10pt]"
+          style={{ fontFamily: getBrowserDocumentFontFamily(fontId) }}
+        >
           {/* Sender Top (Name/Address) - Matching PDF precisely */}
           <div className="w-full text-right mb-[20pt]">
             <p className="text-[11pt] font-semibold text-[#3d3d3d]">

@@ -137,10 +137,10 @@ export default function AnschreibenEditorPanel({
         </div>
 
         <div className="flex-1 px-4 py-5 pb-32">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
 
             {/* ── Text Tab ─────────────────────────────────── */}
-            <TabsContent value="content" className="m-0">
+            <TabsContent key="content" value="content" className="m-0">
               <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
                 <FieldCard>
                   <div className="p-5">
@@ -211,7 +211,7 @@ export default function AnschreibenEditorPanel({
             </TabsContent>
 
             {/* ── Sender Tab ───────────────────────────────────── */}
-            <TabsContent value="sender" className="m-0">
+            <TabsContent key="sender" value="sender" className="m-0">
               <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
                 <FieldCard>
                   <div className="p-5">
@@ -286,7 +286,7 @@ export default function AnschreibenEditorPanel({
             </TabsContent>
 
             {/* ── Recipient Tab ─────────────────────────────────── */}
-            <TabsContent value="recipient" className="m-0">
+            <TabsContent key="recipient" value="recipient" className="m-0">
               <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
                 <FieldCard>
                   <div className="p-5">
@@ -329,7 +329,7 @@ export default function AnschreibenEditorPanel({
             </TabsContent>
 
             {/* ── Settings Tab ──────────────────────────────────── */}
-            <TabsContent value="settings" className="m-0">
+            <TabsContent key="settings" value="settings" className="m-0">
               <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
                 <FieldCard>
                   <div className="p-5">

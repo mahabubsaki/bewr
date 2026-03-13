@@ -5,54 +5,20 @@ import {
   View,
   StyleSheet,
   Image,
-  Font,
 } from "@react-pdf/renderer";
 import type { AnschreibenData } from "../data/defaultData";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type DocumentFontId,
+} from "../lib/fontConfig";
+import { getPdfDocumentFontFamily, registerPdfFonts } from "./pdfFonts";
 
-// Import local Roboto fonts
-import RobotoLight from "../assets/font/roboto/Roboto-Light.ttf";
-import RobotoRegular from "../assets/font/roboto/Roboto-Regular.ttf";
-import RobotoMedium from "../assets/font/roboto/Roboto-Medium.ttf";
-import RobotoBold from "../assets/font/roboto/Roboto-Bold.ttf";
-
-// Register Dancing Script from URL (still needed for signature unless user provides local file)
-const DANCING_SCRIPT_URL =
-  "https://fonts.gstatic.com/s/dancingscript/v8/DK0eTGXiZjN6yA8zAEyM2S5FJMZltoAAwO2fP7iHu2o.ttf";
-
-// Register Roboto font
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: RobotoLight,
-      fontWeight: 300,
-    },
-    {
-      src: RobotoRegular,
-      fontWeight: 400,
-    },
-    {
-      src: RobotoMedium,
-      fontWeight: 500,
-    },
-    {
-      src: RobotoBold,
-      fontWeight: 700,
-    },
-  ],
-});
-
-// Register Dancing Script for signature
-Font.register({
-  family: "DancingScript",
-  src: DANCING_SCRIPT_URL,
-});
+registerPdfFonts();
 
 const ACCENT = "#3d3d3d";
 
 const s = StyleSheet.create({
   page: {
-    fontFamily: "Roboto",
     fontSize: 10,
     lineHeight: 1.4,
     color: "#1a1a1a",
@@ -128,20 +94,28 @@ const s = StyleSheet.create({
 
 interface Props {
   data: AnschreibenData;
+  fontId?: DocumentFontId;
 }
 
-const AnschreibenPDF = ({ data }: Props) => (
-  <Document>
-    <Page
-      size="A4"
-      style={{
-        ...s.page,
-        paddingTop: `${data.margins.top}mm`,
-        paddingBottom: `${data.margins.bottom}mm`,
-        paddingLeft: `${data.margins.left}mm`,
-        paddingRight: `${data.margins.right}mm`,
-      }}
-    >
+const AnschreibenPDF = ({
+  data,
+  fontId = DEFAULT_EDITOR_FONT_SETTINGS.fontId,
+}: Props) => {
+  const documentFontFamily = getPdfDocumentFontFamily(fontId);
+
+  return (
+    <Document>
+      <Page
+        size="A4"
+        style={{
+          ...s.page,
+          fontFamily: documentFontFamily,
+          paddingTop: `${data.margins.top}mm`,
+          paddingBottom: `${data.margins.bottom}mm`,
+          paddingLeft: `${data.margins.left}mm`,
+          paddingRight: `${data.margins.right}mm`,
+        }}
+      >
       {/* Sender Top (Name/Address) */}
       <View style={s.senderTop}>
         <Text style={s.senderName}>{data.sender.name}</Text>
@@ -192,8 +166,9 @@ const AnschreibenPDF = ({ data }: Props) => (
       ) : (
         <Text style={s.sigText}>{data.senderNameClosing}</Text>
       )}
-    </Page>
-  </Document>
-);
+      </Page>
+    </Document>
+  );
+};
 
 export default AnschreibenPDF;

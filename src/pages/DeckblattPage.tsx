@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useVariationScopedLocalStorage } from "../hooks/useVariationScopedLocalStorage";
 import { defaultDeckblatt } from "../data/defaultData";
 import type { DeckblattData } from "../data/defaultData";
 import { Download, Sparkle, Layers } from "lucide-react";
@@ -26,10 +26,20 @@ import EditorPageHeader from "../components/editor/EditorPageHeader";
 import EditorPreviewPanel from "../components/editor/EditorPreviewPanel";
 import FirmaModal from "../components/editor/FirmaModal";
 import DeckblattEditorPanel from "../components/deckblatt/DeckblattEditorPanel";
+import DocumentFontSelect from "../components/editor/DocumentFontSelect";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type EditorFontSettings,
+} from "../lib/fontConfig";
+import { getVariationStorageKey } from "../lib/variationManager";
 
 export default function DeckblattPage() {
   const navigate = useNavigate();
-  const [data, setData] = useLocalStorage<DeckblattData>("deckblatt", defaultDeckblatt);
+  const [data, setData, , activeVariationId] = useVariationScopedLocalStorage<DeckblattData>("deckblatt", defaultDeckblatt);
+  const [fontSettings, setFontSettings] = useVariationScopedLocalStorage<EditorFontSettings>(
+    "editor-font-settings",
+    DEFAULT_EDITOR_FONT_SETTINGS,
+  );
   const [isSmartEditOpen, setIsSmartEditOpen] = useState(false);
   const [isFirmaModalOpen, setIsFirmaModalOpen] = useState(false);
   const [firmaName, setFirmaName] = useState("");
@@ -37,13 +47,15 @@ export default function DeckblattPage() {
   useEffect(() => {
     let updated = false;
     const newData = { ...data };
+    const legacyName = (data as DeckblattData & { name?: string }).name;
+
     if (!data.personal) {
-      newData.personal = { name: (data as any).name || "Max Mustermann", street: "", city: "", phone: "", email: "", photo: "" };
+      newData.personal = { name: legacyName || "Max Mustermann", street: "", city: "", phone: "", email: "", photo: "" };
       updated = true;
     }
     if (!data.margins) { newData.margins = defaultDeckblatt.margins; updated = true; }
     if (updated) setData(newData);
-  }, [data.personal, data.margins]);
+  }, [data, setData]);
 
   if (!data?.personal) {
     return (
@@ -57,13 +69,16 @@ export default function DeckblattPage() {
     setData((prev: DeckblattData) => ({ ...prev, [key]: value }));
     if (key === "position") {
       try {
-        const stored = localStorage.getItem("anschreiben");
+        const anschreibenKey = getVariationStorageKey("anschreiben", activeVariationId);
+        const stored = localStorage.getItem(anschreibenKey);
         if (stored) {
           const d = JSON.parse(stored);
           d.subject = value;
-          localStorage.setItem("anschreiben", JSON.stringify(d));
+          localStorage.setItem(anschreibenKey, JSON.stringify(d));
         }
-      } catch {}
+      } catch {
+        // Ignore cross-document sync errors to keep editing uninterrupted.
+      }
     }
   };
 
@@ -72,7 +87,7 @@ export default function DeckblattPage() {
     setIsFirmaModalOpen(false);
     setFirmaName("");
     const filename = formatDocFilename(data.personal.name, "Deckblatt", company);
-    await generateDeckblattPdf(data, filename);
+    await generateDeckblattPdf(data, filename, fontSettings.fontId);
   };
 
   return (
@@ -104,6 +119,10 @@ export default function DeckblattPage() {
             margins={data.margins || defaultDeckblatt.margins}
             onChange={(m) => update("margins", m)}
           />
+          <DocumentFontSelect
+            value={fontSettings.fontId}
+            onChange={(fontId) => setFontSettings((prev) => ({ ...prev, fontId }))}
+          />
           <Button
             size="sm"
             onClick={() => setIsFirmaModalOpen(true)}
@@ -117,7 +136,7 @@ export default function DeckblattPage() {
         <div className="grid min-h-[calc(100vh-7.5rem)] grid-cols-1 overflow-hidden border-y bg-muted/20 lg:grid-cols-12 lg:rounded-2xl lg:border lg:shadow-inner">
           <DeckblattEditorPanel data={data} update={update} />
           <EditorPreviewPanel accentColor="bg-indigo-400">
-            <DeckblattPreview data={data} />
+            <DeckblattPreview data={data} fontId={fontSettings.fontId} />
           </EditorPreviewPanel>
         </div>
       </motion.div>

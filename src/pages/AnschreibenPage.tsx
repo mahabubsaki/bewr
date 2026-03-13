@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useVariationScopedLocalStorage } from "../hooks/useVariationScopedLocalStorage";
 import { defaultAnschreiben } from "../data/defaultData";
 import type { AnschreibenData, DeckblattData } from "../data/defaultData";
 import { Download, Zap } from "lucide-react";
@@ -18,10 +18,20 @@ import FirmaModal from "../components/editor/FirmaModal";
 import AnschreibenEditorPanel from "../components/anschreiben/AnschreibenEditorPanel";
 import AnschreibenQuickEdit from "../components/anschreiben/AnschreibenQuickEdit";
 import AnschreibenPreview from "../components/AnschreibenPreview";
+import DocumentFontSelect from "../components/editor/DocumentFontSelect";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type EditorFontSettings,
+} from "../lib/fontConfig";
+import { getVariationStorageKey } from "../lib/variationManager";
 
 export default function AnschreibenPage() {
   const navigate = useNavigate();
-  const [data, setData] = useLocalStorage<AnschreibenData>("anschreiben", defaultAnschreiben);
+  const [data, setData, , activeVariationId] = useVariationScopedLocalStorage<AnschreibenData>("anschreiben", defaultAnschreiben);
+  const [fontSettings, setFontSettings] = useVariationScopedLocalStorage<EditorFontSettings>(
+    "editor-font-settings",
+    DEFAULT_EDITOR_FONT_SETTINGS,
+  );
   const [isQuickEditOpen, setIsQuickEditOpen] = useState(false);
   const [isFirmaModalOpen, setIsFirmaModalOpen] = useState(false);
   const [firmaName, setFirmaName] = useState("");
@@ -30,9 +40,11 @@ export default function AnschreibenPage() {
   useEffect(() => {
     let updated = false;
     const newData = { ...data };
+    const legacySenderName = (data as AnschreibenData & { senderName?: string }).senderName;
+
     if (!data.margins) { newData.margins = defaultAnschreiben.margins; updated = true; }
     if (!data.sender) {
-      newData.sender = { name: (data as any).senderName || "Max Mustermann", street: "", city: "", phone: "", email: "", photo: "" };
+      newData.sender = { name: legacySenderName || "Max Mustermann", street: "", city: "", phone: "", email: "", photo: "" };
       updated = true;
     }
     if (!data.paragraphs || data.paragraphs.length < 6) {
@@ -44,7 +56,7 @@ export default function AnschreibenPage() {
     const today = getCurrentDateGerman();
     if (data.date !== today) { newData.date = today; updated = true; }
     if (updated) setData(newData);
-  }, [data.sender, data.margins, data.paragraphs]);
+  }, [data, setData]);
 
   if (!data.sender) {
     return (
@@ -58,13 +70,16 @@ export default function AnschreibenPage() {
     setData((prev: AnschreibenData) => ({ ...prev, [key]: value }));
     if (key === "subject") {
       try {
-        const stored = localStorage.getItem("deckblatt");
+        const deckblattKey = getVariationStorageKey("deckblatt", activeVariationId);
+        const stored = localStorage.getItem(deckblattKey);
         if (stored) {
           const d = JSON.parse(stored);
           d.position = value;
-          localStorage.setItem("deckblatt", JSON.stringify(d));
+          localStorage.setItem(deckblattKey, JSON.stringify(d));
         }
-      } catch {}
+      } catch {
+        // Ignore cross-document sync errors to keep editing uninterrupted.
+      }
     }
   };
 
@@ -76,7 +91,7 @@ export default function AnschreibenPage() {
 
   const handleSyncFromDeckblatt = () => {
     try {
-      const str = localStorage.getItem("deckblatt");
+      const str = localStorage.getItem(getVariationStorageKey("deckblatt", activeVariationId));
       if (str) {
         const d: DeckblattData = JSON.parse(str);
         setData((prev: AnschreibenData) => ({
@@ -99,7 +114,7 @@ export default function AnschreibenPage() {
     setIsFirmaModalOpen(false);
     setFirmaName("");
     const filename = formatDocFilename(data.sender.name, "Anschreiben", company);
-    await generateAnschreibenPdf(data, filename);
+    await generateAnschreibenPdf(data, filename, fontSettings.fontId);
   };
 
   return (
@@ -131,6 +146,10 @@ export default function AnschreibenPage() {
             margins={data.margins || defaultAnschreiben.margins}
             onChange={(m) => update("margins", m)}
           />
+          <DocumentFontSelect
+            value={fontSettings.fontId}
+            onChange={(fontId) => setFontSettings((prev) => ({ ...prev, fontId }))}
+          />
           <Button
             size="sm"
             onClick={() => setIsFirmaModalOpen(true)}
@@ -149,7 +168,7 @@ export default function AnschreibenPage() {
             onSyncFromDeckblatt={handleSyncFromDeckblatt}
           />
           <EditorPreviewPanel accentColor="bg-emerald-400">
-            <AnschreibenPreview data={data} />
+            <AnschreibenPreview data={data} fontId={fontSettings.fontId} />
           </EditorPreviewPanel>
         </div>
       </motion.div>

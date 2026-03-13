@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/immutability */
 import { useState, useEffect, useCallback } from "react";
 import EditableList from "../components/EditableList";
 import PhotoUpload from "../components/PhotoUpload";
 import LebenslaufPreview from "../components/LebenslaufPreview";
 import { useUndoRedo } from "../hooks/useUndoRedo";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useVariationScopedLocalStorage } from "../hooks/useVariationScopedLocalStorage";
+import { useActiveVariationId } from "../hooks/useActiveVariationId";
 import { defaultLebenslauf } from "../data/defaultData";
 import type { LebenslaufData } from "../data/defaultData";
 import {
@@ -76,6 +76,12 @@ import { FileText } from "lucide-react";
 import EditorPageHeader from "../components/editor/EditorPageHeader";
 import EditorPreviewPanel from "../components/editor/EditorPreviewPanel";
 import FirmaModal from "../components/editor/FirmaModal";
+import DocumentFontSelect from "../components/editor/DocumentFontSelect";
+import {
+  DEFAULT_EDITOR_FONT_SETTINGS,
+  type EditorFontSettings,
+} from "../lib/fontConfig";
+import { getVariationStorageKey } from "../lib/variationManager";
 
 type SectionId =
   | "personal"
@@ -221,6 +227,8 @@ function SortableItem(props: SortableItemProps) {
 
 export default function LebenslaufPage() {
   const navigate = useNavigate();
+  const activeVariationId = useActiveVariationId();
+  const lebenslaufStorageKey = getVariationStorageKey("lebenslauf", activeVariationId);
   const {
     value: data,
     setValue: setData,
@@ -228,16 +236,21 @@ export default function LebenslaufPage() {
     redo,
     canUndo,
     canRedo,
-  } = useUndoRedo<LebenslaufData>("lebenslauf", defaultLebenslauf);
+  } = useUndoRedo<LebenslaufData>(lebenslaufStorageKey, defaultLebenslauf);
 
-  const [sectionOrder, setSectionOrder] = useLocalStorage<SectionId[]>(
+  const [sectionOrder, setSectionOrder] = useVariationScopedLocalStorage<SectionId[]>(
     "lebenslauf-section-order",
     DEFAULT_SECTION_ORDER,
   );
 
-  const [deletedSections, setDeletedSections] = useLocalStorage<SectionId[]>(
+  const [deletedSections, setDeletedSections] = useVariationScopedLocalStorage<SectionId[]>(
     "lebenslauf-deleted-sections",
     [],
+  );
+
+  const [fontSettings, setFontSettings] = useVariationScopedLocalStorage<EditorFontSettings>(
+    "editor-font-settings",
+    DEFAULT_EDITOR_FONT_SETTINGS,
   );
 
   const [activeTab, setActiveTab] = useState<SectionId>("personal");
@@ -320,10 +333,12 @@ export default function LebenslaufPage() {
       update("signatureDate", today);
     }
   }, [
+    data.personalFields,
     data.personalInfo,
     data.margins,
     data.sectionTitles,
     data.signatureDate,
+    setData,
     update,
   ]);
 
@@ -347,7 +362,7 @@ export default function LebenslaufPage() {
   const executeDownload = async (company: string) => {
     const name = data.personalInfo.name || "Unbekannt";
     const filename = formatDocFilename(name, "Lebenslauf", company);
-    await generateLebenslaufPdf(data, filename, activeSections);
+    await generateLebenslaufPdf(data, filename, activeSections, fontSettings.fontId);
   };
 
   const activeSections = sectionOrder.filter(
@@ -425,6 +440,10 @@ export default function LebenslaufPage() {
         <MarginControls
           margins={data.margins || defaultLebenslauf.margins}
           onChange={(m) => update("margins", m)}
+        />
+        <DocumentFontSelect
+          value={fontSettings.fontId}
+          onChange={(fontId) => setFontSettings((prev) => ({ ...prev, fontId }))}
         />
         <Button
           size="sm"
@@ -1179,6 +1198,7 @@ export default function LebenslaufPage() {
           <LebenslaufPreview
             data={data}
             activeSections={activeSections}
+            fontId={fontSettings.fontId}
             onUpdate={(p, v) => update(p, v)}
           />
         </EditorPreviewPanel>
