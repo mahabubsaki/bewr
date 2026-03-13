@@ -895,6 +895,25 @@ export default function LebenslaufPage() {
                                 </div>
                               )}
 
+                              {/* Degree field — education only */}
+                              {id === "education" && (
+                                <div className="space-y-1.5">
+                                  <Label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600/70">
+                                    Abschluss / Studiengang
+                                  </Label>
+                                  <Input
+                                    className="h-11 rounded-xl border-border/60 bg-background/80 transition-all focus-visible:border-amber-500/60 focus-visible:ring-2 focus-visible:ring-amber-500/15 placeholder:text-muted-foreground/30"
+                                    placeholder="z.B. Bachelor of Science Informatik"
+                                    value={item.degree || ""}
+                                    onChange={(e) => {
+                                      const a = [...(data[id] as any)];
+                                      a[i].degree = e.target.value;
+                                      update(id, a);
+                                    }}
+                                  />
+                                </div>
+                              )}
+
                               {/* URL fields — projects only */}
                               {id === "projects" && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -961,7 +980,7 @@ export default function LebenslaufPage() {
                               bullets: ["Neuer Eintrag"],
                             };
                             if (id === "experience") { skeleton.company = ""; skeleton.role = ""; skeleton.url = ""; }
-                            if (id === "education") skeleton.institution = "";
+                            if (id === "education") { skeleton.institution = ""; skeleton.degree = ""; }
                             if (id === "projects") skeleton.title = "";
                             insertIntoArray(
                               id,
