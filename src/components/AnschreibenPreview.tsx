@@ -17,6 +17,10 @@ export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewP
     );
   }
   const { margins } = data;
+  const baseFontSize = data.fontSize ?? 10;
+  const fontScale = baseFontSize / 10;
+  const scalePt = (value: number) => `${value * fontScale}pt`;
+  const paragraphSpacing = data.paragraphSpacing ?? 10;
 
   return (
     <div className="w-full flex justify-center items-start h-100 pt-4 sm:pt-8 bg-transparent overflow-visible">
@@ -35,12 +39,12 @@ export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewP
         }}
       >
         <div
-          className="flex h-full flex-col text-[#1a1a1a] leading-[1.4] text-[10pt]"
-          style={{ fontFamily: getBrowserDocumentFontFamily(fontId) }}
+          className="flex h-full flex-col text-[#1a1a1a] leading-[1.4]"
+          style={{ fontFamily: getBrowserDocumentFontFamily(fontId), fontSize: scalePt(10) }}
         >
           {/* Sender Top (Name/Address) - Matching PDF precisely */}
           <div className="w-full text-right mb-[20pt]">
-            <p className="text-[11pt] font-semibold text-[#3d3d3d]">
+            <p className="font-semibold text-[#3d3d3d]" style={{ fontSize: scalePt(11) }}>
               {data.sender.name}
             </p>
             <p>{data.sender.street}</p>
@@ -56,8 +60,8 @@ export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewP
               <p>{data.recipientCity}</p>
             </div>
             <div className="w-[45%] text-right space-y-0.5">
-              <p className="text-[9.5pt]">Telefon: {data.sender.phone}</p>
-              <p className="text-[9.5pt]">
+              <p style={{ fontSize: scalePt(9.5) }}>Telefon: {data.sender.phone}</p>
+              <p style={{ fontSize: scalePt(9.5) }}>
                 E-Mail:{" "}
                 <span className="text-[#3d3d3d]">{data.sender.email}</span>
               </p>
@@ -69,7 +73,7 @@ export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewP
 
           {/* Subject */}
           <div className="mb-[20pt]">
-            <h2 className="text-[12pt] font-bold text-gray-900">
+            <h2 className="font-bold text-gray-900" style={{ fontSize: scalePt(12) }}>
               Betreff: {data.subject}
             </h2>
           </div>
@@ -78,9 +82,13 @@ export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewP
           <div className="flex-1">
             <p className="mb-[16pt] text-gray-800">{data.salutation}</p>
 
-            <div className="space-y-[10pt]">
+            <div>
               {data.paragraphs.map((para, i) => (
-                <p key={i} className="text-justify leading-[1.4]">
+                <p
+                  key={i}
+                  className="text-justify leading-[1.4]"
+                  style={{ marginBottom: i === data.paragraphs.length - 1 ? 0 : `${paragraphSpacing}pt` }}
+                >
                   {para}
                 </p>
               ))}
@@ -102,7 +110,10 @@ export default function AnschreibenPreview({ data, fontId }: AnschreibenPreviewP
                   className="h-[50pt] w-[160pt] object-contain"
                 />
               ) : (
-                <p className="text-[24pt] font-serif italic text-gray-800 leading-none">
+                <p
+                  className="font-serif italic text-gray-800 leading-none"
+                  style={{ fontSize: scalePt(24) }}
+                >
                   {data.senderNameClosing}
                 </p>
               )}

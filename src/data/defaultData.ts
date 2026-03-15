@@ -84,6 +84,8 @@ export interface AnschreibenData {
     closing: string;
     senderNameClosing: string;
     signature: string;
+    fontSize?: number;
+    paragraphSpacing?: number;
     margins: Margins;
 }
 
@@ -237,6 +239,8 @@ export const defaultAnschreiben: AnschreibenData = {
     closing: "Mit freundlichen Grüßen",
     senderNameClosing: "Max Mustermann",
     signature: "",
+    fontSize: 10,
+    paragraphSpacing: 10,
     margins: { top: 30, bottom: 25, left: 25, right: 25 },
 };
 

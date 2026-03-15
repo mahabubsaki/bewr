@@ -102,6 +102,10 @@ const AnschreibenPDF = ({
   fontId = DEFAULT_EDITOR_FONT_SETTINGS.fontId,
 }: Props) => {
   const documentFontFamily = getPdfDocumentFontFamily(fontId);
+  const baseFontSize = data.fontSize ?? 10;
+  const fontScale = baseFontSize / 10;
+  const scale = (value: number) => value * fontScale;
+  const paragraphSpacing = data.paragraphSpacing ?? 10;
 
   return (
     <Document>
@@ -110,6 +114,7 @@ const AnschreibenPDF = ({
         style={{
           ...s.page,
           fontFamily: documentFontFamily,
+          fontSize: scale(10),
           paddingTop: `${data.margins.top}mm`,
           paddingBottom: `${data.margins.bottom}mm`,
           paddingLeft: `${data.margins.left}mm`,
@@ -118,7 +123,7 @@ const AnschreibenPDF = ({
       >
       {/* Sender Top (Name/Address) */}
       <View style={s.senderTop}>
-        <Text style={s.senderName}>{data.sender.name}</Text>
+        <Text style={[s.senderName, { fontSize: scale(11) }]}>{data.sender.name}</Text>
         <Text>
           {data.sender.street}, {data.sender.city}
         </Text>
@@ -133,8 +138,8 @@ const AnschreibenPDF = ({
           <Text>{data.recipientCity}</Text>
         </View>
         <View style={s.senderBottom}>
-          <Text style={s.senderContact}>Telefon: {data.sender.phone}</Text>
-          <Text style={s.senderContact}>
+          <Text style={[s.senderContact, { fontSize: scale(9.5) }]}>Telefon: {data.sender.phone}</Text>
+          <Text style={[s.senderContact, { fontSize: scale(9.5) }]}>
             E-Mail: <Text style={s.email}>{data.sender.email}</Text>
           </Text>
         </View>
@@ -144,14 +149,20 @@ const AnschreibenPDF = ({
       <Text style={s.date}>{data.date}</Text>
 
       {/* Subject */}
-      <Text style={s.subject}>Betreff: {data.subject}</Text>
+      <Text style={[s.subject, { fontSize: scale(12) }]}>Betreff: {data.subject}</Text>
 
       {/* Salutation */}
       <Text style={s.salutation}>{data.salutation}</Text>
 
       {/* Body */}
       {data.paragraphs.map((para, i) => (
-        <Text key={i} style={s.paragraph}>
+        <Text
+          key={i}
+          style={[
+            s.paragraph,
+            { marginBottom: i === data.paragraphs.length - 1 ? 0 : paragraphSpacing },
+          ]}
+        >
           {para}
         </Text>
       ))}
@@ -164,7 +175,7 @@ const AnschreibenPDF = ({
       {data.signature ? (
         <Image src={data.signature} style={s.sigImage} />
       ) : (
-        <Text style={s.sigText}>{data.senderNameClosing}</Text>
+        <Text style={[s.sigText, { fontSize: scale(24) }]}>{data.senderNameClosing}</Text>
       )}
       </Page>
     </Document>

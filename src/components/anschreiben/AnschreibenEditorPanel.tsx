@@ -5,7 +5,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Edit3, User, Building2, Settings, RefreshCw, FileText, Phone, Mail, MapPin, AlignLeft } from "lucide-react";
+import { Edit3, User, Building2, Settings, RefreshCw, FileText, Phone, Mail, MapPin, AlignLeft, Minus, Plus, Type } from "lucide-react";
 
 const SECTION_LABELS = [
   { emoji: "📌", label: "Einleitung", hint: "Wecke Interesse vom ersten Satz an" },
@@ -109,6 +109,14 @@ export default function AnschreibenEditorPanel({
   updateParagraph,
   onSyncFromDeckblatt,
 }: Props) {
+  const fontSize = data.fontSize ?? 10;
+  const clampFontSize = (value: number) => Math.min(12, Math.max(9, value));
+  const updateFontSize = (value: number) => update("fontSize", clampFontSize(value));
+  const paragraphSpacing = data.paragraphSpacing ?? 10;
+  const clampParagraphSpacing = (value: number) => Math.min(20, Math.max(6, value));
+  const updateParagraphSpacing = (value: number) =>
+    update("paragraphSpacing", clampParagraphSpacing(value));
+
   return (
     <div className="order-2 flex h-auto flex-col overflow-y-visible border-t bg-background/50 backdrop-blur-sm lg:col-span-5 lg:order-1 lg:h-full lg:overflow-y-auto lg:border-t-0 lg:border-r">
       <Tabs defaultValue="content" className="flex flex-1 flex-col">
@@ -341,6 +349,82 @@ export default function AnschreibenEditorPanel({
                         placeholder="Mit freundlichen Grüßen,"
                       />
                     </Field>
+                    <div className="mt-4">
+                      <Field label="Schriftgröße (pt)" icon={<Type size={11} />}>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => updateFontSize(fontSize - 0.5)}
+                            className="h-10 w-10 rounded-xl"
+                            aria-label="Schrift verkleinern"
+                          >
+                            <Minus size={14} />
+                          </Button>
+                          <Input
+                            type="number"
+                            min={9}
+                            max={12}
+                            step={0.5}
+                            value={Number.isFinite(fontSize) ? fontSize : 10}
+                            onChange={(e) => {
+                              const next = Number(e.target.value);
+                              if (Number.isFinite(next)) updateFontSize(next);
+                            }}
+                            className="h-11 w-24 rounded-xl text-center"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => updateFontSize(fontSize + 0.5)}
+                            className="h-10 w-10 rounded-xl"
+                            aria-label="Schrift vergrößern"
+                          >
+                            <Plus size={14} />
+                          </Button>
+                        </div>
+                      </Field>
+                    </div>
+                    <div className="mt-4">
+                      <Field label="Absatzabstand (pt)" icon={<AlignLeft size={11} />}>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => updateParagraphSpacing(paragraphSpacing - 1)}
+                            className="h-10 w-10 rounded-xl"
+                            aria-label="Absatzabstand verringern"
+                          >
+                            <Minus size={14} />
+                          </Button>
+                          <Input
+                            type="number"
+                            min={6}
+                            max={20}
+                            step={1}
+                            value={Number.isFinite(paragraphSpacing) ? paragraphSpacing : 10}
+                            onChange={(e) => {
+                              const next = Number(e.target.value);
+                              if (Number.isFinite(next)) updateParagraphSpacing(next);
+                            }}
+                            className="h-11 w-24 rounded-xl text-center"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => updateParagraphSpacing(paragraphSpacing + 1)}
+                            className="h-10 w-10 rounded-xl"
+                            aria-label="Absatzabstand erhöhen"
+                          >
+                            <Plus size={14} />
+                          </Button>
+                        </div>
+                      </Field>
+                    </div>
                   </div>
                 </FieldCard>
               </motion.div>

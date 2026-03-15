@@ -53,6 +53,14 @@ export default function AnschreibenPage() {
       newData.paragraphs = p;
       updated = true;
     }
+    if (data.fontSize === undefined) {
+      newData.fontSize = defaultAnschreiben.fontSize ?? 10;
+      updated = true;
+    }
+    if (data.paragraphSpacing === undefined) {
+      newData.paragraphSpacing = defaultAnschreiben.paragraphSpacing ?? 10;
+      updated = true;
+    }
     const today = getCurrentDateGerman();
     if (data.date !== today) { newData.date = today; updated = true; }
     if (updated) setData(newData);
