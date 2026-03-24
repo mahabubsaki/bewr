@@ -107,6 +107,7 @@ export interface CertificateFile {
     size: number;
 }
 
+
 export const defaultLebenslauf: LebenslaufData = {
     personalInfo: {
         name: "Max Mustermann",
@@ -260,4 +261,111 @@ export const defaultDeckblatt: DeckblattData = {
         anlagen: "Anlagen:",
     },
     margins: { top: 20, bottom: 15, left: 15, right: 15 },
+};
+
+// ── FSJ Lebenslauf Defaults ─────────────────────────────────────
+
+export const defaultFsjLebenslauf: LebenslaufData = {
+    personalInfo: {
+        name: "Mahabub Hossen Saki",
+        street: "Shingh Bari Rd, Tongi West",
+        city: "1711 Gazipur, Bangladesch",
+        phone: "+8801714269744",
+        email: "saki007.ph@gmail.com",
+        photo: "",
+    },
+    personalFields: [
+        { label: "Geburtsdatum", value: "04.07.2002" },
+        { label: "Geburtsort", value: "Gazipur, Bangladesch" },
+        { label: "Familienstand", value: "Ledig" },
+    ],
+    aboutMe:
+        "Ich bin ein zuverlässiger und engagierter Mensch mit großer Freude am Umgang mit Menschen. Durch meine Erfahrung im Kundenservice habe ich gelernt, geduldig zuzuhören, verständlich zu erklären und freundlich auf unterschiedliche Bedürfnisse einzugehen. Für ein Freiwilliges Soziales Jahr bringe ich Motivation, Verantwortungsbewusstsein und die Bereitschaft mit, aktiv zu helfen und neue Erfahrungen im sozialen Bereich zu sammeln.",
+    skills: [
+        { category: "Soziale Kompetenzen", items: "Teamfähigkeit, Zuverlässigkeit, Geduld im Umgang mit Menschen, Kommunikationsfähigkeit, Hilfsbereitschaft" },
+    ],
+    projects: [],
+    experience: [
+        {
+            period: "12/2021 – 07/2022",
+            company: "",
+            url: "",
+            role: "Nachhilfelehrer (privat)",
+            bullets: [
+                "Unterstützung von Schülerinnen und Schülern in verschiedenen Fächern (z. B. Englisch und Mathematik)",
+                "Geduldige Erklärung von Lerninhalten und Hausaufgaben",
+                "Individuelle Betreuung je nach Lernniveau",
+                "Förderung von Motivation und Selbstvertrauen",
+            ],
+        },
+    ],
+    education: [
+        {
+            period: "07/2019 – 12/2021",
+            institution: "Shahajuddin Sarker Model School and College",
+            degree: "Höheres Sekundarschulzertifikat (HSC) – Wissenschaft",
+            bullets: ["Note: 4,83 / 5,00 (sehr gut)"],
+        },
+        {
+            period: "01/2017 – 12/2018",
+            institution: "Meher Nigar College",
+            degree: "Sekundarschulabschluss (SSC)",
+            bullets: ["Note: 4,39 / 5,00 (gut)"],
+        },
+    ],
+    languages: [
+        { name: "Bengalisch", level: "Muttersprache" },
+        { name: "Englisch", level: "fließend in Wort und Schrift" },
+        { name: "Deutsch", level: "B1 (derzeit im B2-Kurs)" },
+        { name: "Hindi", level: "fließend" },
+    ],
+    hobbys: "Musik, Fußball, Wandern, Austausch mit Menschen aus verschiedenen Kulturen",
+    signatureCity: "Gazipur",
+    signatureDate: "",
+    signature: "",
+    sectionTitles: {
+        personal: "Persönliche Daten",
+        about: "Profil (Kurzprofil)",
+        experience: "Berufserfahrung",
+        education: "Schulbildung",
+        interests: "Sprachkenntnisse & Interessen",
+        skills: "Soziale Kompetenzen",
+        projects: "Projekte",
+    },
+    languagesLabel: "Sprachkenntnisse",
+    margins: { top: 25, bottom: 20, left: 25, right: 25 },
+};
+
+// ── FSJ Anschreiben Defaults ────────────────────────────────────
+
+export const defaultFsjAnschreiben: AnschreibenData = {
+    sender: {
+        name: "Max Mustermann",
+        street: "Am Stadtrand 12",
+        city: "61250 Usingen",
+        phone: "0177 123 456 78",
+        email: "beispiel@cvmaker.de",
+        photo: "",
+    },
+    recipientCompany: "Kindertagesstätte Sonnenschein",
+    recipientDepartment: "z.H. Frau Müller",
+    recipientStreet: "Gartenweg 5",
+    recipientCity: "61250 Usingen",
+    date: "",
+    subject: "Bewerbung um ein Freiwilliges Soziales Jahr im Kindergarten",
+    salutation: "Sehr geehrte Frau Müller,",
+    paragraphs: [
+        "Sie suchen ein Teammitglied, das großen Spaß im Umgang mit Kindern hat? Dann bin ich genau die Richtige! Im Rahmen eines FSJ in Ihrem Kindergarten möchte ich Sie als motivierte und zuverlässige Freiwillige mit abwechslungsreichen Aufgaben unterstützen.",
+        "Ich interessiere mich besonders für ein FSJ in Ihrem Kindergarten, weil bei Ihnen die Kinder von klein auf kreativ erzogen werden. Das schätze ich sehr, da ich selbst in meiner Freizeit gerne Klavier spiele. Außerdem tanze und zeichne ich gerne.",
+        "Daher würde ich meine Fähigkeiten gerne in Ihrem Kindergarten einsetzen, um die Kreativität der Kinder zu unterstützen. Im Alter von 15 Jahren habe ich bereits als Babysitterin gearbeitet und mich zudem als Nachhilfelehrerin engagiert. So kann ich mit Kindern unterschiedlichsten Alters umgehen.",
+        "Zudem bringe ich viel Teamgeist, Durchsetzungsvermögen, Kritikfähigkeit und eine offene Art mit. Dies habe ich bereits während meiner langen Zeit als Mitglied im Tanzsportverein unter Beweis gestellt. Ich bin davon überzeugt, dass diese persönlichen Stärken mich bei meiner Arbeit in der Betreuung sehr weiterbringen werden.",
+        "Ich wusste schon immer, dass ich ein FSJ machen möchte, um mich sozial mehr zu engagieren. Die Arbeit mit Kindern ist meiner Meinung nach der beste Weg, um die Gesellschaft langfristig positiv zu verändern.",
+        "Ab dem 01.09.2023 kann ich Sie in Ihrer Einrichtung unterstützen. Ich freue mich sehr auf eine Einladung zu einem persönlichen Vorstellungsgespräch.",
+    ],
+    closing: "Mit freundlichen Grüßen",
+    senderNameClosing: "Max Mustermann",
+    signature: "",
+    fontSize: 10,
+    paragraphSpacing: 10,
+    margins: { top: 30, bottom: 25, left: 25, right: 25 },
 };

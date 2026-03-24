@@ -120,9 +120,11 @@ export default function LebenslaufPreview({
                   <div className="flex-1">
                     <div className="text-[10pt] font-bold text-[#1a1a1a]">
                       {e.company}{" "}
-                      <span className="text-[9pt] font-normal text-[#555]">
-                        ({e.url})
-                      </span>
+                      {e.url && (
+                        <span className="text-[9pt] font-normal text-[#555]">
+                          ({e.url})
+                        </span>
+                      )}
                     </div>
                     <div className="text-[10pt] text-[#1a1a1a]">{e.role}</div>
                     <ul className="mt-1 space-y-0.5 -ml-0.5">

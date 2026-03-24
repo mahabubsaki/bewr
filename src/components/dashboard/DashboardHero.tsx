@@ -5,9 +5,11 @@ interface Props {
   hasDeckblatt: boolean;
   hasAnschreiben: boolean;
   hasLebenslauf: boolean;
+  hasFsjLebenslauf: boolean;
+  hasFsjAnschreiben: boolean;
 }
 
-export default function DashboardHero({ hasDeckblatt, hasAnschreiben, hasLebenslauf }: Props) {
+export default function DashboardHero({ hasDeckblatt, hasAnschreiben, hasLebenslauf, hasFsjLebenslauf, hasFsjAnschreiben }: Props) {
   return (
     <motion.div
       className="relative mb-10 overflow-hidden rounded-3xl border border-border/60 bg-linear-to-br from-primary/8 via-background to-background px-8 py-10 shadow-card sm:px-12 sm:py-14"
@@ -64,9 +66,11 @@ export default function DashboardHero({ hasDeckblatt, hasAnschreiben, hasLebensl
           transition={{ delay: 0.32, duration: 0.4 }}
         >
           {[
-            { label: "Deckblatt",   done: hasDeckblatt },
-            { label: "Anschreiben", done: hasAnschreiben },
-            { label: "Lebenslauf",  done: hasLebenslauf },
+            { label: "Deckblatt",       done: hasDeckblatt },
+            { label: "Anschreiben",     done: hasAnschreiben },
+            { label: "Lebenslauf",      done: hasLebenslauf },
+            { label: "FSJ Lebenslauf",  done: hasFsjLebenslauf },
+            { label: "FSJ Anschreiben", done: hasFsjAnschreiben },
           ].map((s) => (
             <div
               key={s.label}

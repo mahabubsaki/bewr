@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import LebenslaufPage from "./pages/LebenslaufPage";
 import AnschreibenPage from "./pages/AnschreibenPage";
 import DeckblattPage from "./pages/DeckblattPage";
+import FsjLebenslaufPage from "./pages/FsjLebenslaufPage";
+import FsjAnschreibenPage from "./pages/FsjAnschreibenPage";
 import "./index.css";
 
 function AppContent() {
@@ -26,6 +28,8 @@ function AppContent() {
               <Route path="/lebenslauf" element={<LebenslaufPage />} />
               <Route path="/anschreiben" element={<AnschreibenPage />} />
               <Route path="/deckblatt" element={<DeckblattPage />} />
+              <Route path="/fsj-lebenslauf" element={<FsjLebenslaufPage />} />
+              <Route path="/fsj-anschreiben" element={<FsjAnschreibenPage />} />
             </Routes>
           </motion.div>
         </AnimatePresence>

@@ -83,6 +83,21 @@ import {
 } from "../lib/fontConfig";
 import { getVariationStorageKey } from "../lib/variationManager";
 
+export interface LebenslaufConfig {
+  storageKey: string;
+  sectionOrderKey: string;
+  deletedSectionsKey: string;
+  defaultData: LebenslaufData;
+  defaultSectionOrder: SectionId[];
+  defaultDeletedSections: SectionId[];
+  title: string;
+  breadcrumbLabel: string;
+  gradient: string;
+  glow: string;
+  accentColor: string;
+  downloadLabel: string;
+}
+
 type SectionId =
   | "personal"
   | "about"
@@ -225,10 +240,26 @@ function SortableItem(props: SortableItemProps) {
   );
 }
 
-export default function LebenslaufPage() {
+const DEFAULT_CONFIG: LebenslaufConfig = {
+  storageKey: "lebenslauf",
+  sectionOrderKey: "lebenslauf-section-order",
+  deletedSectionsKey: "lebenslauf-deleted-sections",
+  defaultData: defaultLebenslauf,
+  defaultSectionOrder: DEFAULT_SECTION_ORDER,
+  defaultDeletedSections: [],
+  title: "Lebenslauf",
+  breadcrumbLabel: "Lebenslauf Editor",
+  gradient: "bg-linear-to-br from-amber-500 to-orange-600",
+  glow: "shadow-amber-500/30",
+  accentColor: "bg-amber-400",
+  downloadLabel: "Lebenslauf",
+};
+
+export default function LebenslaufPage({ config: userConfig }: { config?: Partial<LebenslaufConfig> } = {}) {
+  const cfg = { ...DEFAULT_CONFIG, ...userConfig };
   const navigate = useNavigate();
   const activeVariationId = useActiveVariationId();
-  const lebenslaufStorageKey = getVariationStorageKey("lebenslauf", activeVariationId);
+  const lebenslaufStorageKey = getVariationStorageKey(cfg.storageKey, activeVariationId);
   const {
     value: data,
     setValue: setData,
@@ -236,16 +267,16 @@ export default function LebenslaufPage() {
     redo,
     canUndo,
     canRedo,
-  } = useUndoRedo<LebenslaufData>(lebenslaufStorageKey, defaultLebenslauf);
+  } = useUndoRedo<LebenslaufData>(lebenslaufStorageKey, cfg.defaultData);
 
   const [sectionOrder, setSectionOrder] = useVariationScopedLocalStorage<SectionId[]>(
-    "lebenslauf-section-order",
-    DEFAULT_SECTION_ORDER,
+    cfg.sectionOrderKey,
+    cfg.defaultSectionOrder,
   );
 
   const [deletedSections, setDeletedSections] = useVariationScopedLocalStorage<SectionId[]>(
-    "lebenslauf-deleted-sections",
-    [],
+    cfg.deletedSectionsKey,
+    cfg.defaultDeletedSections,
   );
 
   const [fontSettings, setFontSettings] = useVariationScopedLocalStorage<EditorFontSettings>(
@@ -317,14 +348,28 @@ export default function LebenslaufPage() {
     }
 
     if (!data.margins) {
-      setData((prev) => ({ ...prev, margins: defaultLebenslauf.margins }));
+      setData((prev) => ({ ...prev, margins: cfg.defaultData.margins }));
     }
 
     if (!data.sectionTitles) {
       setData((prev) => ({
         ...prev,
-        sectionTitles: defaultLebenslauf.sectionTitles,
+        sectionTitles: cfg.defaultData.sectionTitles,
       }));
+    }
+
+    // Ensure all arrays exist (handles stale localStorage from different data shapes)
+    const arrayDefaults: Partial<LebenslaufData> = {};
+    if (!data.skills) arrayDefaults.skills = cfg.defaultData.skills || [];
+    if (!data.projects) arrayDefaults.projects = cfg.defaultData.projects || [];
+    if (!data.experience) arrayDefaults.experience = cfg.defaultData.experience || [];
+    if (!data.education) arrayDefaults.education = cfg.defaultData.education || [];
+    if (!data.languages) arrayDefaults.languages = cfg.defaultData.languages || [];
+    if (!data.personalFields) arrayDefaults.personalFields = cfg.defaultData.personalFields || [];
+    if (data.aboutMe === undefined) arrayDefaults.aboutMe = cfg.defaultData.aboutMe || "";
+    if (data.hobbys === undefined) arrayDefaults.hobbys = cfg.defaultData.hobbys || "";
+    if (Object.keys(arrayDefaults).length > 0) {
+      setData((prev) => ({ ...prev, ...arrayDefaults }));
     }
 
     // Always set current date
@@ -361,7 +406,7 @@ export default function LebenslaufPage() {
 
   const executeDownload = async (company: string) => {
     const name = data.personalInfo.name || "Unbekannt";
-    const filename = formatDocFilename(name, "Lebenslauf", company);
+    const filename = formatDocFilename(name, cfg.downloadLabel, company);
     await generateLebenslaufPdf(data, filename, activeSections, fontSettings.fontId);
   };
 
@@ -422,11 +467,11 @@ export default function LebenslaufPage() {
       transition={{ duration: 0.3 }}
     >
       <EditorPageHeader
-        title="Lebenslauf"
-        breadcrumbLabel="Lebenslauf Editor"
+        title={cfg.title}
+        breadcrumbLabel={cfg.breadcrumbLabel}
         icon={<FileText size={18} />}
-        gradient="bg-linear-to-br from-amber-500 to-orange-600"
-        glow="shadow-amber-500/30"
+        gradient={cfg.gradient}
+        glow={cfg.glow}
         onBack={() => navigate("/")}
       >
         <div className="flex gap-1 rounded-lg bg-muted/60 p-1">
@@ -448,7 +493,7 @@ export default function LebenslaufPage() {
         <Button
           size="sm"
           onClick={handleDownload}
-          className="gap-2 bg-linear-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:shadow-amber-500/40"
+          className={`gap-2 bg-linear-to-br ${cfg.gradient.replace('bg-linear-to-br ', '')} text-white shadow-md ${cfg.glow} hover:${cfg.glow.replace('/30', '/40')}`}
         >
           <Download size={15} />
           <span className="hidden sm:inline">PDF Export</span>
@@ -766,7 +811,7 @@ export default function LebenslaufPage() {
                       id === "education" ||
                       id === "projects") && (
                       <div className="space-y-6">
-                        {(data[id] as any[]).map((item, i) => (
+                        {((data[id] as any[]) || []).map((item, i) => (
                           <div
                             key={i}
                             className="group relative rounded-xl border border-border/40 bg-card/40 p-2 sm:p-5 shadow-sm transition-all hover:border-primary/20 hover:shadow-md"
@@ -997,7 +1042,7 @@ export default function LebenslaufPage() {
 
                     {id === "skills" && (
                       <div className="space-y-6">
-                        {data.skills.map((s, i) => (
+                        {(data.skills || []).map((s, i) => (
                           <div
                             key={i}
                             className="group relative rounded-xl border border-border/40 bg-card/40 p-5 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] transition-all hover:border-primary/20 hover:shadow-lg hover:bg-card/60"
@@ -1109,7 +1154,7 @@ export default function LebenslaufPage() {
                           </div>
 
                           <div className="space-y-3">
-                            {data.languages.map((lang, i) => (
+                            {(data.languages || []).map((lang, i) => (
                               <div
                                 key={i}
                                 className="flex gap-2 items-center group/lang"
@@ -1249,7 +1294,7 @@ export default function LebenslaufPage() {
           </div>
         </div>
 
-        <EditorPreviewPanel accentColor="bg-amber-400">
+        <EditorPreviewPanel accentColor={cfg.accentColor}>
           <LebenslaufPreview
             data={data}
             activeSections={activeSections}

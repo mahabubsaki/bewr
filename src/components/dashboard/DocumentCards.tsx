@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Layers, Mail, FileText, Download, ArrowRight, Loader2 } from "lucide-react";
+import { Layers, Mail, FileText, Download, ArrowRight, Loader2, Heart } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,8 @@ interface Props {
   hasDeckblatt: boolean;
   hasAnschreiben: boolean;
   hasLebenslauf: boolean;
+  hasFsjLebenslauf: boolean;
+  hasFsjAnschreiben: boolean;
   loading: string | null;
   openDownloadModal: (docId: string) => void;
 }
@@ -42,11 +44,31 @@ const DOCS = [
     path: "/lebenslauf",
     readyKey: "hasLebenslauf" as const,
   },
+  {
+    id: "fsj-lebenslauf",
+    title: "FSJ Lebenslauf",
+    desc: "Lebenslauf für FSJ Bewerbung",
+    icon: Heart,
+    gradient: "bg-gradient-to-br from-rose-500 to-pink-600",
+    blob: "bg-rose-400",
+    path: "/fsj-lebenslauf",
+    readyKey: "hasFsjLebenslauf" as const,
+  },
+  {
+    id: "fsj-anschreiben",
+    title: "FSJ Anschreiben",
+    desc: "Anschreiben für FSJ Bewerbung",
+    icon: Heart,
+    gradient: "bg-gradient-to-br from-pink-500 to-rose-600",
+    blob: "bg-pink-400",
+    path: "/fsj-anschreiben",
+    readyKey: "hasFsjAnschreiben" as const,
+  },
 ];
 
-export default function DocumentCards({ hasDeckblatt, hasAnschreiben, hasLebenslauf, loading, openDownloadModal }: Props) {
+export default function DocumentCards({ hasDeckblatt, hasAnschreiben, hasLebenslauf, hasFsjLebenslauf, hasFsjAnschreiben, loading, openDownloadModal }: Props) {
   const navigate = useNavigate();
-  const ready: Record<string, boolean> = { hasDeckblatt, hasAnschreiben, hasLebenslauf };
+  const ready: Record<string, boolean> = { hasDeckblatt, hasAnschreiben, hasLebenslauf, hasFsjLebenslauf, hasFsjAnschreiben };
 
   return (
     <motion.div

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import {
   Layers, Mail, FileText, Download, Package, Loader2,
-  Database, ShieldCheck, Settings, Trash2, Upload,
+  Database, ShieldCheck, Settings, Trash2, Upload, Heart,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import type { CertificateFile } from "../../data/defaultData";
@@ -11,6 +11,8 @@ interface Props {
   hasDeckblatt: boolean;
   hasAnschreiben: boolean;
   hasLebenslauf: boolean;
+  hasFsjLebenslauf: boolean;
+  hasFsjAnschreiben: boolean;
   loading: string | null;
   certificates: CertificateFile[];
   addCertificates: (files: CertificateFile[]) => void;
@@ -22,17 +24,20 @@ interface Props {
 }
 
 const DOWNLOAD_DOCS = [
-  { id: "deckblatt",   label: "Deckblatt",   icon: Layers,    readyKey: "hasDeckblatt"   as const },
-  { id: "anschreiben", label: "Anschreiben", icon: Mail,      readyKey: "hasAnschreiben" as const },
-  { id: "lebenslauf",  label: "Lebenslauf",  icon: FileText,  readyKey: "hasLebenslauf"  as const },
+  { id: "deckblatt",       label: "Deckblatt",       icon: Layers,    readyKey: "hasDeckblatt"      as const },
+  { id: "anschreiben",     label: "Anschreiben",     icon: Mail,      readyKey: "hasAnschreiben"    as const },
+  { id: "lebenslauf",      label: "Lebenslauf",      icon: FileText,  readyKey: "hasLebenslauf"     as const },
+  { id: "fsj-lebenslauf",  label: "FSJ LF",          icon: Heart,     readyKey: "hasFsjLebenslauf"  as const },
+  { id: "fsj-anschreiben", label: "FSJ AS",           icon: Heart,     readyKey: "hasFsjAnschreiben" as const },
 ];
 
 export default function DashboardPanels({
   hasDeckblatt, hasAnschreiben, hasLebenslauf,
+  hasFsjLebenslauf, hasFsjAnschreiben,
   loading, certificates, addCertificates, removeCertificate,
   openDownloadModal, exportData, importData, resetToDefault,
 }: Props) {
-  const ready: Record<string, boolean> = { hasDeckblatt, hasAnschreiben, hasLebenslauf };
+  const ready: Record<string, boolean> = { hasDeckblatt, hasAnschreiben, hasLebenslauf, hasFsjLebenslauf, hasFsjAnschreiben };
 
   return (
     <>

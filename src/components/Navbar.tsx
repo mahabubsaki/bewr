@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Home, File, Mail, Layers, X, Menu } from "lucide-react";
+import { FileText, Home, File, Mail, Layers, X, Menu, Heart } from "lucide-react";
 import { Button } from "./ui/button";
 import { overlayVariants, panelVariants } from "../lib/animations";
 
 const navItems = [
-  { to: "/",            label: "Dashboard",   icon: Home,     end: true  },
-  { to: "/deckblatt",   label: "Deckblatt",   icon: Layers,   end: false },
-  { to: "/anschreiben", label: "Anschreiben", icon: Mail,     end: false },
-  { to: "/lebenslauf",  label: "Lebenslauf",  icon: File,     end: false },
+  { to: "/",               label: "Dashboard",       icon: Home,     end: true  },
+  { to: "/deckblatt",      label: "Deckblatt",       icon: Layers,   end: false },
+  { to: "/anschreiben",    label: "Anschreiben",     icon: Mail,     end: false },
+  { to: "/lebenslauf",     label: "Lebenslauf",      icon: File,     end: false },
+  { to: "/fsj-lebenslauf", label: "FSJ Lebenslauf",  icon: Heart,    end: false },
+  { to: "/fsj-anschreiben",label: "FSJ Anschreiben", icon: Heart,    end: false },
 ];
 
 export default function Navbar() {

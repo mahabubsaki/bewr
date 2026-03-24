@@ -332,9 +332,11 @@ const LebenslaufPDF = ({
                       <Text style={s.entryTitle}>
                         {data.experience[0].company}
                       </Text>{" "}
-                      <Link src={data.experience[0].url} style={s.url}>
-                        ({data.experience[0].url})
-                      </Link>
+                      {data.experience[0].url ? (
+                        <Link src={data.experience[0].url} style={s.url}>
+                          ({data.experience[0].url})
+                        </Link>
+                      ) : null}
                     </Text>
                     <Text>{data.experience[0].role}</Text>
                     <BulletList items={data.experience[0].bullets} />
@@ -348,9 +350,11 @@ const LebenslaufPDF = ({
                 <View style={s.entryDetails}>
                   <Text>
                     <Text style={s.entryTitle}>{e.company}</Text>{" "}
-                    <Link src={e.url} style={s.url}>
-                      ({e.url})
-                    </Link>
+                    {e.url ? (
+                      <Link src={e.url} style={s.url}>
+                        ({e.url})
+                      </Link>
+                    ) : null}
                   </Text>
                   <Text>{e.role}</Text>
                   <BulletList items={e.bullets} />

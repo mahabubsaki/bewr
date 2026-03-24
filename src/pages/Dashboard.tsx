@@ -6,6 +6,8 @@ import {
   defaultLebenslauf,
   defaultAnschreiben,
   defaultDeckblatt,
+  defaultFsjLebenslauf,
+  defaultFsjAnschreiben,
 } from "../data/defaultData";
 import type {
   LebenslaufData,
@@ -42,6 +44,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -68,14 +75,17 @@ export default function Dashboard() {
   const [isFirmaModalOpen, setIsFirmaModalOpen] = useState(false);
   const [firmaName, setFirmaName] = useState("");
   const [pendingDownload, setPendingDownload] = useState<string | null>(null);
+  const [applyType, setApplyType] = useState<"ausbildung" | "fsj">("ausbildung");
 
   useEffect(() => {
     ensureVariationSystem();
   }, []);
 
-  const hasLebenslauf  = !!localStorage.getItem(getVariationStorageKey("lebenslauf", activeVariationId));
-  const hasAnschreiben = !!localStorage.getItem(getVariationStorageKey("anschreiben", activeVariationId));
-  const hasDeckblatt   = !!localStorage.getItem(getVariationStorageKey("deckblatt", activeVariationId));
+  const hasLebenslauf      = !!localStorage.getItem(getVariationStorageKey("lebenslauf", activeVariationId));
+  const hasAnschreiben     = !!localStorage.getItem(getVariationStorageKey("anschreiben", activeVariationId));
+  const hasDeckblatt       = !!localStorage.getItem(getVariationStorageKey("deckblatt", activeVariationId));
+  const hasFsjLebenslauf   = !!localStorage.getItem(getVariationStorageKey("fsj-lebenslauf", activeVariationId));
+  const hasFsjAnschreiben  = !!localStorage.getItem(getVariationStorageKey("fsj-anschreiben", activeVariationId));
 
   const openDownloadModal = (docId: string) => {
     setPendingDownload(docId);
@@ -101,6 +111,12 @@ export default function Dashboard() {
       } else if (docId === "deckblatt") {
         const data = loadFromStorage<DeckblattData>(activeVariationId, "deckblatt", defaultDeckblatt);
         await generateDeckblattPdf(data, formatDocFilename(data.personal.name, "Deckblatt", company), fontSettings.fontId);
+      } else if (docId === "fsj-lebenslauf") {
+        const data = loadFromStorage<LebenslaufData>(activeVariationId, "fsj-lebenslauf", defaultFsjLebenslauf);
+        await generateLebenslaufPdf(data, formatDocFilename(data.personalInfo.name, "FSJ-Lebenslauf", company), undefined, fontSettings.fontId);
+      } else if (docId === "fsj-anschreiben") {
+        const data = loadFromStorage<AnschreibenData>(activeVariationId, "fsj-anschreiben", defaultFsjAnschreiben);
+        await generateAnschreibenPdf(data, formatDocFilename(data.sender.name, "FSJ-Anschreiben", company), fontSettings.fontId);
       }
     } catch (err) {
       console.error("PDF generation failed:", err);
@@ -115,13 +131,13 @@ export default function Dashboard() {
     setIsFirmaModalOpen(false);
     setPendingDownload(null);
     if (docId === "combined") {
-      await runCombinedDownload(company);
+      await runCombinedDownload(company, applyType);
     } else if (docId) {
       await executeSingleDownload(docId, company);
     }
   };
 
-  const runCombinedDownload = async (company: string) => {
+  const runCombinedDownload = async (company: string, type: "ausbildung" | "fsj") => {
     setLoading("combined");
     try {
       const fontSettings = loadFromStorage<EditorFontSettings>(
@@ -132,28 +148,48 @@ export default function Dashboard() {
       const blobs: Blob[] = [];
       let candidateName = "Bewerbung";
 
-      try {
-        const d = loadFromStorage<DeckblattData>(activeVariationId, "deckblatt", defaultDeckblatt);
-        candidateName = d.personal.name;
-        blobs.push(await generateDeckblattBlob(d, fontSettings.fontId));
-      } catch { console.warn("Deckblatt skipped"); }
+      if (type === "ausbildung") {
+        try {
+          const d = loadFromStorage<DeckblattData>(activeVariationId, "deckblatt", defaultDeckblatt);
+          candidateName = d.personal.name;
+          blobs.push(await generateDeckblattBlob(d, fontSettings.fontId));
+        } catch { console.warn("Deckblatt skipped"); }
 
-      try {
-        const d = loadFromStorage<AnschreibenData>(activeVariationId, "anschreiben", defaultAnschreiben);
-        if (!candidateName) candidateName = d.sender.name;
-        blobs.push(await generateAnschreibenBlob(d, fontSettings.fontId));
-      } catch { console.warn("Anschreiben skipped"); }
+        try {
+          const d = loadFromStorage<AnschreibenData>(activeVariationId, "anschreiben", defaultAnschreiben);
+          if (!candidateName) candidateName = d.sender.name;
+          blobs.push(await generateAnschreibenBlob(d, fontSettings.fontId));
+        } catch { console.warn("Anschreiben skipped"); }
 
-      try {
-        const d = loadFromStorage<LebenslaufData>(activeVariationId, "lebenslauf", defaultLebenslauf);
-        if (!candidateName) candidateName = d.personalInfo.name;
-        const DEFAULT_SECTIONS = ["personal","about","skills","projects","experience","education","interests"];
-        const sectionOrderKey = getVariationStorageKey("lebenslauf-section-order", activeVariationId);
-        const deletedKey = getVariationStorageKey("lebenslauf-deleted-sections", activeVariationId);
-        const sectionOrder: string[] = JSON.parse(localStorage.getItem(sectionOrderKey) || "null") || DEFAULT_SECTIONS;
-        const deleted: string[] = JSON.parse(localStorage.getItem(deletedKey) || "[]");
-        blobs.push(await generateLebenslaufBlob(d, sectionOrder.filter((id) => !deleted.includes(id)), fontSettings.fontId));
-      } catch { console.warn("Lebenslauf skipped"); }
+        try {
+          const d = loadFromStorage<LebenslaufData>(activeVariationId, "lebenslauf", defaultLebenslauf);
+          if (!candidateName) candidateName = d.personalInfo.name;
+          const DEFAULT_SECTIONS = ["personal","about","skills","projects","experience","education","interests"];
+          const sectionOrderKey = getVariationStorageKey("lebenslauf-section-order", activeVariationId);
+          const deletedKey = getVariationStorageKey("lebenslauf-deleted-sections", activeVariationId);
+          const sectionOrder: string[] = JSON.parse(localStorage.getItem(sectionOrderKey) || "null") || DEFAULT_SECTIONS;
+          const deleted: string[] = JSON.parse(localStorage.getItem(deletedKey) || "[]");
+          blobs.push(await generateLebenslaufBlob(d, sectionOrder.filter((id) => !deleted.includes(id)), fontSettings.fontId));
+        } catch { console.warn("Lebenslauf skipped"); }
+      } else {
+        // FSJ Branch
+        try {
+          const d = loadFromStorage<AnschreibenData>(activeVariationId, "fsj-anschreiben", defaultFsjAnschreiben);
+          candidateName = d.sender.name;
+          blobs.push(await generateAnschreibenBlob(d, fontSettings.fontId));
+        } catch { console.warn("FSJ Anschreiben skipped"); }
+
+        try {
+          const d = loadFromStorage<LebenslaufData>(activeVariationId, "fsj-lebenslauf", defaultFsjLebenslauf);
+          if (!candidateName) candidateName = d.personalInfo.name;
+          const DEFAULT_FSJ_SECTIONS = ["personal","about","experience","education","interests","skills","projects"];
+          const sectionOrderKey = getVariationStorageKey("fsj-lebenslauf-section-order", activeVariationId);
+          const deletedKey = getVariationStorageKey("fsj-lebenslauf-deleted-sections", activeVariationId);
+          const sectionOrder: string[] = JSON.parse(localStorage.getItem(sectionOrderKey) || "null") || DEFAULT_FSJ_SECTIONS;
+          const deleted: string[] = JSON.parse(localStorage.getItem(deletedKey) || '["projects"]');
+          blobs.push(await generateLebenslaufBlob(d, sectionOrder.filter((id) => !deleted.includes(id)), fontSettings.fontId));
+        } catch { console.warn("FSJ Lebenslauf skipped"); }
+      }
 
       for (const cert of certificates) {
         try { blobs.push(await base64ToBlob(cert.data)); } catch { console.warn(`Cert ${cert.name} skipped`); }
@@ -247,12 +283,16 @@ export default function Dashboard() {
           hasDeckblatt={hasDeckblatt}
           hasAnschreiben={hasAnschreiben}
           hasLebenslauf={hasLebenslauf}
+          hasFsjLebenslauf={hasFsjLebenslauf}
+          hasFsjAnschreiben={hasFsjAnschreiben}
         />
 
         <DocumentCards
           hasDeckblatt={hasDeckblatt}
           hasAnschreiben={hasAnschreiben}
           hasLebenslauf={hasLebenslauf}
+          hasFsjLebenslauf={hasFsjLebenslauf}
+          hasFsjAnschreiben={hasFsjAnschreiben}
           loading={loading}
           openDownloadModal={openDownloadModal}
         />
@@ -261,6 +301,8 @@ export default function Dashboard() {
           hasDeckblatt={hasDeckblatt}
           hasAnschreiben={hasAnschreiben}
           hasLebenslauf={hasLebenslauf}
+          hasFsjLebenslauf={hasFsjLebenslauf}
+          hasFsjAnschreiben={hasFsjAnschreiben}
           loading={loading}
           certificates={certificates}
           addCertificates={addCertificates}
@@ -282,6 +324,17 @@ export default function Dashboard() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {pendingDownload === "combined" && (
+              <div className="grid gap-2 mb-2">
+                <Label>Bewerbungstyp</Label>
+                <Tabs value={applyType} onValueChange={(v) => setApplyType(v as "ausbildung" | "fsj")}>
+                  <TabsList className="grid w-full grid-cols-2 h-11 rounded-xl p-1">
+                    <TabsTrigger value="ausbildung" className="rounded-lg font-bold">Ausbildung</TabsTrigger>
+                    <TabsTrigger value="fsj" className="rounded-lg font-bold">FSJ</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="firma">Firma Name <span className="text-muted-foreground">(optional)</span></Label>
               <Input
